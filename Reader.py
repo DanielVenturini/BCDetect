@@ -36,7 +36,7 @@ class Reader(Exception):
                 elif(pos == len(mainRow)-1):        # last position
                     raise Exception('NoFieldsFound')# if not found the field, raise exception
 
-        print(self.posFields)
+        #print(self.posFields)
 
     # get the nexts values for each field
     # raise StopIteration when dont has more lines
