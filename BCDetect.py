@@ -14,20 +14,20 @@ class BCDetect:
 
         print("Checking if node, npm and next-update are installed.")
         try:
-            self.verifyRequired('node', '^v[\d]+\.[\d]+\.[\d]+')         # check node
-            self.verifyRequired('npm', '[\d]+\.[\d]+\.[\d]+')            # check npm
-            self.verifyRequired('next-update', '[\d]+\.[\d]+\.[\d]+')    # check next-update
+            self.verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')         # check node
+            self.verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')            # check npm
+            self.verifyRequired('tar', '--version', '[\d]\.[\d]+(\.[\d]+)*')    # check tar
         except AttributeError:
             print("Um dos programas nao esta instalado")
         else:
             print("All required program are installed")
 
     # check if any required program are installed
-    def verifyRequired(self, comand, regexString):
-        resp = subprocess.getoutput(comand + ' -v') # execute e.g. 'node -v' and get response
-        matchs = re.search(regexString, resp)        # get the string match
+    def verifyRequired(self, prog, flag, regexString):
+        resp = subprocess.getoutput(prog + ' ' + flag)  # execute e.g. 'node -v' and get response
+        matchs = re.search(regexString, resp)           # get the string match
 
-        version = matchs.group(0)                   # get the first result, or raise AttributeError
-        print(comand + ' OK: ' + version)
+        version = matchs.group(0)                       # get the first result, or raise AttributeError
+        print(prog + ' OK: ' + version)
 
 BCDetect()
