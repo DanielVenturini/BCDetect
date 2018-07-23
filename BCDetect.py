@@ -17,7 +17,7 @@ class BCDetect:
             self.verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
             self.verifyRequired('tar', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
 
-            self.reader = Reader(sys.argv[1], ['client_version_num_2', 'dependency_name'])
+            self.reader = Reader(sys.argv[1], ['client_version_num_2', 'dependency_name', 'num_of_dep_versions_at_client_timestamp_1', 'dependency_type', 'last_dep_version_at_client_timestamp_1'])
         except IndexError:      # no has filename.csv
             print("Wrong inicialization: BCDetect filename.csv")
         except AttributeError:  # no has some required program
