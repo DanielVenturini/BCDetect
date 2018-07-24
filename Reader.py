@@ -45,7 +45,7 @@ class Reader(Exception):
         values = []                                 # store the values
 
         for i in self.posFields:
-            values.append(line[i])                  # get each value
+            values.append(line[i].replace('"', '')) # get each value
 
         #print(values)
         return values
