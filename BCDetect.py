@@ -12,10 +12,11 @@ class BCDetect:
         self.allok = False
 
         try:
-            print("Checking if node, npm and next-update are installed.")
+            print("Checking if Node, NPM, TAR and Mocha are installed.")
             self.verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')      # check node
             self.verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
             self.verifyRequired('tar', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
+            self.verifyRequired('mocha', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
 
             self.reader = Reader(sys.argv[1], ["client_name", "client_version_num_2", "dependency_name", "dependency_version_max_satisf_2"])
         except IndexError:      # no has filename.csv
