@@ -13,6 +13,7 @@ class Worker:
     def start(self):
         print("Starting worker")
         subprocess.getstatusoutput('mkdir workspace/')      # if this path dont exists, create
+        subprocess.getstatusoutput('mkdir workspace/cache/')
 
         try:
 
@@ -46,7 +47,7 @@ class Worker:
 
     def npmInstall(self):
         print('    npm install: ', end='', flush=True)
-        if(subprocess.getstatusoutput('npm install --prefix ./workspace/package/')[0] != 0):
+        if(subprocess.getstatusoutput('npm install --no-save --prefix ./workspace/package/')[0] != 0):
             raise Exception
 
         print('OK')
@@ -85,14 +86,14 @@ class Worker:
         print('OK')
         print('    Move: ', end='', flush=True)
         # move file to workspace
-        if(subprocess.getstatusoutput('mv '+client.replace('@', '-')+'.tgz workspace/')[0] != 0):
-            print('Failed move {0}.tgz to workspace/'.format(client.replace('@', '-')))
+        if(subprocess.getstatusoutput('mv '+client.replace('@', '-')+'.tgz workspace/cache/')[0] != 0):
+            print('Failed move {0}.tgz to workspace/cache/'.format(client.replace('@', '-')))
             raise subprocess.CalledProcessError
 
         print('OK')
         print('    Extract: ', end='', flush=True)
         # extract file to workspace
-        if(subprocess.getstatusoutput('tar -xzf workspace/' + client.replace('@', '-')+'.tgz -C workspace')[0] != 0):
+        if(subprocess.getstatusoutput('tar -xzf workspace/cache/' + client.replace('@', '-')+'.tgz -C workspace')[0] != 0):
             print('Failed extract {0} to workspace/'.format(client.replace('@', '-')))
             raise subprocess.CalledProcessError
 
