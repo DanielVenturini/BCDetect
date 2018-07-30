@@ -45,6 +45,7 @@ class Worker:
             print("Complete...Finish")
 
 
+    # npm install --no-save --only=dev
     def npmInstall(self):
         print('    npm install: ', end='', flush=True)
         if(subprocess.getstatusoutput('npm install --no-save --prefix ./workspace/package/')[0] != 0):
