@@ -2,6 +2,7 @@
 
 import re
 import subprocess
+from Package import Package
 
 class Worker:
 
@@ -15,15 +16,28 @@ class Worker:
         subprocess.getstatusoutput('mkdir workspace/')      # if this path dont exists, create
         subprocess.getstatusoutput('mkdir workspace/cache/')
 
+        self.fullCSV = self.reader.getFull()
+        self.package = Package()
+
         try:
 
-            while True:
-                client, client_version, dependency, dependency_version = self.reader.next() # get info
-                fullClient = "{0}@{1}".format(client, client_version)
-                fullDependency = '{0}@{1}'.format(dependency, dependency_version)
+            for fullClient in list(self.fullCSV.keys()):                # for each version: alex@1.6.0, alex@1.2.0, alex@4.0.0, ...
 
-                print("Client {0} -> {1}".format(fullClient, fullDependency))
+                client = fullClient.split('@')                          # ['alex', '1.6.0']
+                client, client_version = client[0], client[1]
 
+                print('Client {0}'.format(fullClient))
+                print('    UPDATE package.json')
+
+                for fullDependency in list(self.fullCSV[fullClient]):   # for each dependency: unified@6.1.3, retext-profanities@4.1.0, remark-message-control@4.0.0, ...
+
+                    dependency = fullDependency.split('@')
+                    dependency, dependency_version = dependency[0], dependency[1]
+                    print('    {0}'.format(fullDependency))
+                    self.package.update(dependency, dependency_version) # change the version of dependency in the package.json
+
+                self.package.save()                                     # save the changes in package.json
+            '''
                 try:
                     if(not fullClient.__eq__(self.currentPackage)):     # dont download twice
                         self.deleteCurrentFolder()                      # delete the current package/
@@ -37,7 +51,7 @@ class Worker:
                     self.changeDependencyVersion(dependency, dependency_version, change='back')    # back to current dependency
                 except Exception:
                     print('ERR')
-
+            '''
         except subprocess.CalledProcessError:
             print('ERR')
             print('Cannot continue. Please, check the permissions of the path CSV/')

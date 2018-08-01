@@ -10,24 +10,28 @@ class Package:
         self.fileName = fileName
 
         try:
-            self.fileJson = json.load(open('workspace/test.json'))
+            self.fileJson = json.load(open(self.fileName))
             self.fileExists = True
         except FileNotFoundError:
             raise
 
     # update the value of the specify key
     def update(self, key, value):
-        if(not self.fileExists):
+        if not self.fileExists:
             return
 
         try:
-            self.fileJson[key] = value
+            self.fileJson['dependencies'][key] = value
         except KeyError:
-            print('Key {0} isn\'t in the JSON object.'.format(key))
+            try:
+                self.fileJson['devDependencies'][key] = value
+            except KeyError:
+                print('Key {0} isn\'t in the JSON object.'.format(key))
+
 
     # get the value of the key
     def get(self, key):
-        if(not self.fileExists):
+        if not self.fileExists:
             return None
 
         try:
@@ -41,4 +45,4 @@ class Package:
 
     # save the current state of json to a file
     def save(self):
-        json.dump(self.fileJson, open(self.fileName, 'w'))
+        json.dump(self.fileJson, open(self.fileName, 'w'), indent=2, sort_keys=True)

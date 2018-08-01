@@ -5,11 +5,12 @@ import csv
 class Reader(Exception):
 
     # file name, fields which be returneds
-    def __init__(self, csvFileName, fields):
+    def __init__(self, fields, csvFileName='alex.csv'):
 
         try:
             self.fileExists = False
             self.fieldsExists = False
+            self.hash = None
 
             csvfile = open('CSV/' + csvFileName)    # open file which is csv reader
             self.csvReader = csv.reader(csvfile, delimiter=',', quotechar='\n')
@@ -68,7 +69,10 @@ class Reader(Exception):
         if(not self.fieldsExists or not self.fileExists):
             raise StopIteration
 
-        hash = {}
+        if(self.hash):
+            return self.hash
+
+        self.hash = {}
 
         try:
             while True:
@@ -78,10 +82,10 @@ class Reader(Exception):
                 fullDependency = '{0}@{1}'.format(dependency, dependency_version)
 
                 try:
-                    hash[fullClient].append(fullDependency)
+                    self.hash[fullClient].append(fullDependency)
                 except KeyError:
-                    hash[fullClient] = []
-                    hash[fullClient].append(fullDependency)
+                    self.hash[fullClient] = []
+                    self.hash[fullClient].append(fullDependency)
 
         except StopIteration:
-            return hash
+            return self.hash

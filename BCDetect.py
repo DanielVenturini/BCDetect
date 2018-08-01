@@ -18,7 +18,7 @@ class BCDetect:
             self.verifyRequired('tar', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
             self.verifyRequired('mocha', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
 
-            self.reader = Reader(sys.argv[1], ["client_name", "client_version_num_2", "dependency_name", "dependency_version_max_satisf_2"])
+            self.reader = Reader(["client_name", "client_version_num_2", "dependency_name", "dependency_version_max_satisf_2"], csvFileName=sys.argv[1])
         except IndexError:      # no has filename.csv
             print("Wrong inicialization: BCDetect filename.csv")
         except AttributeError:  # no has some required program
