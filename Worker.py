@@ -1,6 +1,6 @@
 # -*- coding:ISO8859-1 -*-
-
 import re
+import sys
 import subprocess
 from Package import Package
 
@@ -8,7 +8,6 @@ class Worker:
 
     def __init__(self, reader):
         self.reader = reader
-        self.currentPackage = ''    # usage to doesnt download same package
 
     # start work
     def start(self):
@@ -17,41 +16,44 @@ class Worker:
         subprocess.getstatusoutput('mkdir workspace/cache/')
 
         self.fullCSV = self.reader.getFull()
-        self.package = Package()
 
         try:
 
             for fullClient in list(self.fullCSV.keys()):                # for each version: alex@1.6.0, alex@1.2.0, alex@4.0.0, ...
-
+                print('Client {0}'.format(fullClient))
+                # download, move and extract the file.tgz
+                self.get(fullClient)
+                '''
+                print("digite daniel")
+                sys.stdin.read(6)
                 client = fullClient.split('@')                          # ['alex', '1.6.0']
                 client, client_version = client[0], client[1]
-
-                print('Client {0}'.format(fullClient))
+                '''
                 print('    UPDATE package.json')
 
+                self.package = Package()                                # open package.json
                 for fullDependency in list(self.fullCSV[fullClient]):   # for each dependency: unified@6.1.3, retext-profanities@4.1.0, remark-message-control@4.0.0, ...
 
                     dependency = fullDependency.split('@')
                     dependency, dependency_version = dependency[0], dependency[1]
-                    print('    {0}'.format(fullDependency))
+                    print('        {0}'.format(fullDependency))
                     self.package.update(dependency, dependency_version) # change the version of dependency in the package.json
 
                 self.package.save()                                     # save the changes in package.json
-            '''
-                try:
-                    if(not fullClient.__eq__(self.currentPackage)):     # dont download twice
-                        self.deleteCurrentFolder()                      # delete the current package/
-                        self.get(fullClient)
-                        self.currentPackage = fullClient
+                print('    UPDATED package.json')
+                '''
+                print("digite daniel")
+                sys.stdin.read(6)
+                '''
 
+                print('\n')
+
+                try:
                     self.npmInstall()                       # install alll dependents
                     self.mochaTest()                        # first, check if current version work
-                    self.changeDependencyVersion(dependency, dependency_version, change='change')   # change the version of dependenc to test to latest
-                    self.mochaTest(test='breaking change')  # test again
-                    self.changeDependencyVersion(dependency, dependency_version, change='back')    # back to current dependency
                 except Exception:
                     print('ERR')
-            '''
+
         except subprocess.CalledProcessError:
             print('ERR')
             print('Cannot continue. Please, check the permissions of the path CSV/')
@@ -92,6 +94,8 @@ class Worker:
 
     # download and extract source code of client
     def get(self, client):
+        self.deleteCurrentFolder()  # delete the current package/
+
         print('    Download: ', end='', flush=True)
         # download source code
         if(subprocess.getstatusoutput('npm pack ' + client)[0] != 0):

@@ -21,9 +21,11 @@ class Package:
             return
 
         try:
+            self.fileJson['dependencies'][key]          # only for test if key exists
             self.fileJson['dependencies'][key] = value
         except KeyError:
             try:
+                self.fileJson['devDependencies'][key]
                 self.fileJson['devDependencies'][key] = value
             except KeyError:
                 print('Key {0} isn\'t in the JSON object.'.format(key))
