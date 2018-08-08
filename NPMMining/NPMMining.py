@@ -26,15 +26,17 @@ def getPackage(fileName='list_npm'):
             printName(package)
 
             getDependencies(package)
-            printResp('OK!')
+            printResp(' OK!')
 
             hasTests(package)
-            printResp('OK!', last=True)
+            printResp(' OK!', last=True)
+
+            fileWriter.write(package + '\n')        # write the sucessful package
 
         except AttributeError:
-            pass
+            printResp(' ERR!', last=True)
         except Exception:
-            printResp('ERR!', last=True)
+            printResp(' ERR!', last=True)
 
     fileReader.close()
     fileWriter.close()
@@ -44,8 +46,25 @@ def getDependencies(package):
     if (subprocess.getstatusoutput('npm view {0} dependencies'.format(package))[1] == ''):
         raise Exception
 
+# npm view package files dosent work
 def hasTests(package):
-    pass
+    resp = ''
+
+    try:
+        resp = subprocess.getstatusoutput('npm pack ' + package)[1]     # download package
+        re.search('test', resp).group(0)                                # search the test files
+    except AttributeError:
+        subprocess.getstatusoutput('rm -rf ' + getPackName(resp))       # delete the package
+        raise
+
+# from resp, get the package name
+def getPackName(resp):
+    name = ''
+    for i in range(1, len(resp)):
+        if resp[-i] == '\n':
+            return name[::-1]
+        else:
+            name += resp[-i]
 
 def printNum(num):
     max = 5                 # max of algarism
