@@ -52,7 +52,7 @@ def hasTests(package):
 
     try:
         resp = subprocess.getstatusoutput('npm pack ' + package)[1]     # download package
-        re.search('test', resp).group(0)                                # search the test files
+        re.search('test[/]', resp).group(0)                            # search the test files
     except AttributeError:
         subprocess.getstatusoutput('rm -rf ' + getPackName(resp))       # delete the package
         raise
