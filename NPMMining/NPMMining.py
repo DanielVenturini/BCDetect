@@ -15,28 +15,30 @@ def getPackage(fileName='list_npm'):
     fileWriter = open('list_npm_test', 'w')
 
     print('| NUM | TOTAL | PACKAGE NAME                                     | DEPD | TEST |')
+    fileWriter.write('| NUM | TOTAL | PACKAGE NAME                                     | QDEP | QVER |\n')
+
     lines = fileReader.readlines()
     for i in range(0, len(lines)):
         try:
             # get the package name
             package = re.search('[A-z]+((\.?-?\d*)?[A-z]+)*', lines[i]).group(0)
 
-            printNum(i)
-            printTotal(len(lines))
-            printName(package)
+            printNum(i, fileWriter)
+            printTotal(len(lines), fileWriter)
+            printName(package, fileWriter)
 
             getDependencies(package)
-            printResp(' OK!')
+            printResp(' OK!', fileWriter)
 
             hasTests(package)
-            printResp(' OK!', last=True)
+            printResp(' OK!', fileWriter, last=True)
 
             fileWriter.write(package + '\n')        # write the sucessful package
 
         except AttributeError:
-            printResp(' ERR!', last=True)
+            printResp(' ERR!', fileWriter, last=True)
         except Exception:
-            printResp(' ERR!', last=True)
+            printResp(' ERR!', fileWriter, last=True)
 
     fileReader.close()
     fileWriter.close()
@@ -66,39 +68,82 @@ def getPackName(resp):
         else:
             name += resp[-i]
 
-def printNum(num):
+def printNum(num, fileWriter):
     max = 5                 # max of algarism
     qtdNum = len(str(num))  # qtd algarism of num
 
+    fileWriter.write('| ' + str(num))
     print('| ' + str(num), end='')
-    printSpace(max-qtdNum-1)
+    printSpace(max-qtdNum-1, fileWriter)
 
-def printTotal(num):
+def printTotal(num, fileWriter):
     max = 7                 # max of algarism
     qtdNum = len(str(num))  # qtd algarism of num
 
+    fileWriter.write(str(num))
     print(str(num), end='')
-    printSpace(max-qtdNum)
+    printSpace(max-qtdNum, fileWriter)
 
-def printName(name):
+def printName(name, fileWriter):
     max = 50            # max of characters
     qtdName = len(name) # max of characters of name
 
+    fileWriter.write(name)
     print(name, end='')
-    printSpace(max-qtdName)
+    printSpace(max-qtdName, fileWriter)
 
-def printResp(resp, last=False):
+def printResp(resp, fileWriter, last=False):
     max = 6
     qtdResp = len(resp) # max of characters of name
 
+    fileWriter.write(resp)
     print(resp, end='')
-    printSpace(max-qtdResp, last)
+    printSpace(max-qtdResp, fileWriter, last)
 
 
-def printSpace(qtd, last=False):
+def printSpace(qtd, fileWriter, last=False):
+    fileWriter.write((' '*qtd) + '|')
     print((' '*qtd) + '|', end='', flush=True)
 
     if last:
+        fileWriter.write('\n')
         print()
 
-getPackage()
+# read 'list_npm_test' and get the number of dependencies and version for each package
+def getNumDepsAndVersion(fileName='list_npm_test'):
+
+    fileReader = open(fileName, 'r')
+    fileWriter = open('list_npm_qtd', 'w')
+
+    print('| NUM | TOTAL | PACKAGE NAME                                     | QDEP | QVER |')
+    fileWriter.write('| NUM | TOTAL | PACKAGE NAME                                     | QDEP | QVER |\n')
+
+    lines = fileReader.readlines()
+    for i in range(0, len(lines)):
+        package = lines[i].strip()
+
+        printNum(i, fileWriter)
+        printTotal(len(lines), fileWriter)
+        printName(package, fileWriter)
+
+        getNumDeps(package, fileWriter)
+        getNumVersion(package, fileWriter)
+
+    fileReader.close()
+    fileWriter.close()
+
+
+def getNumDeps(package, fileWriter):
+    resp = subprocess.getstatusoutput('npm view {0} dependencies'.format(package))[1]
+    qtd = resp.count(':')
+
+    printResp(' ' + str(qtd), fileWriter)
+
+def getNumVersion(package, fileWriter):
+    resp = subprocess.getstatusoutput('npm view {0} versions'.format(package))[1]
+    qtd = resp.count(',')
+
+    printResp(' ' + str(qtd+1), fileWriter, last=True)
+
+#getPackage()
+getNumDepsAndVersion()
