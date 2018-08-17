@@ -16,9 +16,9 @@ class BCDetect:
             self.verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')      # check node
             self.verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
             self.verifyRequired('tar', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
-            self.verifyRequired('mocha', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check tar
+            self.verifyRequired('nyc', '--version', '[\d]+\.[\d]+\.[\d]+')# check nyc
 
-            self.reader = Reader(["client_name", "client_version_num_2", "dependency_name", "dependency_version_max_satisf_2"], csvFileName=sys.argv[1])
+            self.reader = Reader(["client_name", "dependency_name", "client_version_timestamp_1", "client_version_timestamp_2", "dependency_version_max_satisf_2"], csvFileName=sys.argv[1])
         except IndexError:      # no has filename.csv
             print("Wrong inicialization: BCDetect filename.csv")
         except AttributeError:  # no has some required program

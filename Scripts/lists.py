@@ -1,10 +1,15 @@
 # -*- coding:ISO-8859-1 -*-
 
 '''
-This file open the 'list_npm' file and get the packages name using regex.
+getPackage() - open the 'list_npm' file and get the packages name using regex.
 For each package, its download, and check if exists 'test/...' files.
 
 For each package found, save in the 'list_npm_test'
+'''
+
+'''
+getNumDepsAndVersion() - after get the list of packages with tests files, read the file 'list_npm_test.
+For each package, get the quantity of dependencies and versions and save in the 'list_npm_qtd'
 '''
 
 import re
