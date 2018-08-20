@@ -33,7 +33,9 @@ class Reader(Exception):
         mainRow = self.csvReader.__next__()         # get first line which contains all fields
 
         for field in fields:                        # each required field
+            print(field)
             for pos, fieldRow in enumerate(mainRow):# each field in the first line
+                print('    ' + fieldRow)
                 if(field.__eq__(fieldRow)):
                     self.posFields.append(pos)
                     break
@@ -76,7 +78,17 @@ class Reader(Exception):
 
         try:
             while True:
-                client, client_version, dependency, dependency_version = self.next()
+                # client_name, dependency_name, client_version_timestamp_1, client_version_timestamp_2, dependency_version_max_satisf_1, dependency_version_max_satisf_2
+                client, dependency, client_version_1, client_version_2, dependency_version_1, dependency_version_2 = self.next()
+
+                '''
+                print("Client: " + client)
+                print("Dependency: " + dependency)
+                print("client_version_1: " + client_version_1)
+                print("client_version_2: " + client_version_2)
+                print("dependency_version_1: " + dependency_version_1)
+                print("dependency_version_2: " + dependency_version_2)
+                '''
 
                 fullClient = "{0}@{1}".format(client, client_version)
                 fullDependency = '{0}@{1}'.format(dependency, dependency_version)
