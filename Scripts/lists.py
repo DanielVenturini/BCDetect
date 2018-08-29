@@ -179,7 +179,9 @@ def verifyTests(fileName='../CSV/npmreleases.csv'):
         return
 
     #qtdLines = 3065381
-    qtdLines = 640
+    #qtdLines = 640
+
+    qtdLines = 80
     qtdRepo = 461640
     factor = int((qtdLines/qtdThreads)+1)   # divide for threads
 
@@ -194,50 +196,87 @@ def worker(begin, end, csvReader):
     for i in range(0, begin):
         csvReader.__next__()            # ignoring lines that are not mine
 
-    last_client = ''                    # dont make clone twice
     client_name = ''                    # name of client
-    client_timestamp = ''               # after this timestamp
-    client_previous_timestamp = ''      # before this timestamp
+    last_client = ''                    # dont make clone twice
+    client_path = ''                    # some packages haven't same name of package and repo
+    client_timestamp = ''               # before this timestamp
+    client_previous_timestamp = ''      # after this timestamp
 
     while begin < end:
         try:
             line = csvReader.__next__()             # read line
             client_name = line[0]                   # client name
-            client_timestamp = line[4]              # after
-            client_previous_timestamp = line[10]    # before
+            client_timestamp = line[4]              # before
+            client_previous_timestamp = line[10]    # after
         except IndexError:
             # this ocorrus when first line of package, where previous_timestamp dosent exists
             print("Erro no primeiro")
             client_previous_timestamp = ''
             pass
         except StopIteration:
-            print("saiu por aqui")
             # this ocorrus when get the EOF
             break
 
-        if(not last_client.__eq__(client_name)):    # not the same repository
-            last_client = client_name               # update the last client
-            clone(last_client, client_name, csvReader.line_num) # delete the last_client repository and clone client_name
+        try:
+            if(not last_client.__eq__(client_name)):                # not the same repository
+                print(client_name)
+                client_path = clone(client_path, client_name, csvReader.line_num) # delete the last_client repository and clone client_name
+                last_client = client_name                           # update the last client
+        except Exception:
+            continue
 
-        #checkout(client_name, client_timestamp, client_previous_timestamp)  # change the files to specify date
-        #findTests(client_name)                  # find files to test
+        checkout(client_name, client_timestamp, client_previous_timestamp)  # change the files to specify date
+        findTests(client_name)                  # find files to test
         begin += 1
 
-    # git checkout `git rev-list -1 --before="2016-12-04T13:44:16.882Z" --after="client_version_timestamp_1" master`
+    subprocess.getstatusoutput('rm -rf {0}/'.format(client_name))   # delete the last repo cloned
 
-def clone(last_client, client_name, line):
-    respURL = getRepositoryURL(client_name)
-    if respURL.__eq__(''):
-        respURL = client_name
+def clone(client_path, client_name, client_name_path):
+    if not client_path.__eq__(''):                                  # dont 'rm -rf /'
+        print('    rm -rf {0}/'.format(client_path))
+        subprocess.getstatusoutput('rm -rf {0}/'.format(client_path))       # delete the last repo
 
-    print("Thread " + str(threading.get_ident() % 99) + " clone: " + respURL + " - " + str(line))
+    repURL = getRepositoryURL(client_name)
+    if repURL.__eq__(''):
+        print('------------------------------------------------')
+        raise Exception
+
+    print('    git clone {0}'.format(repURL))          # clone the current
+    subprocess.getstatusoutput('git clone {0}'.format(repURL))          # clone the current
+    return getPath(repURL)
+
+    #print("Thread " + str(threading.get_ident() % 99) + " clone: " + repURL + " - " + str(line))
     pass
 
 def checkout(client_name, client_timestamp, client_previous_timestamp):
-    print("  checkout: " + client_timestamp + " - " + client_previous_timestamp)
+    # git checkout `git rev-list -1 --before="2016-12-04T13:44:16.882Z" --after="client_version_timestamp_1" master`
+    comandCd = 'cd {0}/'.format(client_name)
+    comandCheckout = 'git checkout `git rev-list -1 --before="' + client_timestamp + '"'
+
+    if not client_previous_timestamp.__eq__(''):
+        comandCheckout += ' --after="' + client_previous_timestamp + '" master`'
+    else :
+        comandCheckout += ' master`'
+
+    # cd client_name/ && git checkout ...
+    subprocess.getstatusoutput(comandCd + ' && ' + comandCheckout)
+    print('    ' + comandCd + ' && ' + comandCheckout)
+    #print("  checkout: " + client_timestamp + " - " + client_previous_timestamp)
+    #print("  checkout: " + comandCheckout)
 
 def findTests(client_name):
-    print('  npm test')
+    print('    npm test fail')
+
+def getPath(repURL):
+    begin = repURL.find('/', 19)+1
+
+    # remove '.git' if contains
+    if repURL.find('.git') == -1:
+        end = repURL.__len__()
+    else:
+        end = repURL.__len__()-4
+
+    return repURL[begin:end]
 
 #getPackage()
 #getNumDepsAndVersion()
