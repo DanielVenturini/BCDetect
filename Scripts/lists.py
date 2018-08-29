@@ -12,7 +12,15 @@ getNumDepsAndVersion() - after get the list of packages with tests files, read t
 For each package, get the quantity of dependencies and versions and save in the 'list_npm_qtd'
 '''
 
+'''
+verifyTests() - read to csv file and download from GitHub the source code. Then, use the checkout to change files.
+Verify in package.json the test script and search in files the files to tests
+'''
+
 import re
+import csv
+import sys
+import threading
 import subprocess
 
 def getPackage(fileName='list_npm'):
@@ -150,5 +158,85 @@ def getNumVersion(package, fileWriter):
 
     printResp(' ' + str(qtd+1), fileWriter, last=True)
 
+def getRepositoryURL(packageName):
+    try:
+        resp = subprocess.getstatusoutput('npm view {0} repository'.format(packageName))    # get the JSON with type and url
+        regex = re.compile('(.com/[@a-zA-Z0-9_]+([/@a-zA-Z0-9_-])+).git')                   # to find '/user/repository'
+
+        if regex.search(resp[1]).group(0).__eq__('/home/venturini'):
+            return ''
+        else:
+            return 'https://github' + regex.search(resp[1]).group(0)
+    except AttributeError:
+        return ''     # if hasnt repository
+
+def verifyTests(fileName='../CSV/npmreleases.csv'):
+    try:
+        qtdThreads = int(sys.argv[1])
+    except IndexError:
+        print("Use: python3 lists.py <num_thread>")
+        return
+
+    qtdLines = 3065381
+    qtdRepo = 461640
+    factor = int((qtdLines/qtdThreads)+1)   # divide for threads
+
+    for i in range(0, qtdThreads):
+        csvReader = csv.reader(open(fileName, 'r'), delimiter=',', quotechar='\n')
+        t = threading.Thread(target=worker, args=(i*factor, ((i+1)*factor)-1, csvReader,))
+        t.start()
+
+    print("Terminou de criar as {0} Threads".format(qtdThreads))
+
+def worker(begin, end, csvReader):
+    print("Thread " + str(threading.get_ident() % 99) + " lendo de " + str(begin) + " ate " + str(end))
+
+    for i in range(0, begin):
+        csvReader.__next__()            # ignoring lines that are not mine
+
+    last_client = ''                    # dont make clone twice
+    client_name = ''                    # name of client
+    client_timestamp = ''               # after this timestamp
+    client_previous_timestamp = ''      # before this timestamp
+
+    while begin < end:
+        try:
+            line = csvReader.__next__()             # read line
+            client_name = line[0]                   # client name
+            client_timestamp = line[4]              # after
+            client_previous_timestamp = line[10]    # before
+        except IndexError:
+            # this ocorrus when first line of package, where previous_timestamp dosent exists
+            print("Erro no primeiro")
+            client_previous_timestamp = ''
+            pass
+        except StopIteration:
+            # this ocorrus when get the EOF
+            break
+
+        if(not last_client.__eq__(client_name)):    # not the same repository
+            last_client = client_name               # update the last client
+            clone(last_client, client_name)         # delete the last_client repository and clone client_name
+
+        #checkout(client_name, client_timestamp, client_previous_timestamp)  # change the files to specify date
+        #findTests(client_name)                  # find files to test
+        begin += 1
+
+    print("Thread " + str(threading.get_ident() % 99) + " terminou de ler em " + str(end))
+
+    # git checkout `git rev-list -1 --before="2016-12-04T13:44:16.882Z" --after="client_version_timestamp_1" master`
+
+def clone(last_client, client_name):
+    #respURL = getRepositoryURL(client_name)
+    #print("Thread " + str(threading.get_ident() % 99) + " clone : " + respURL)
+    pass
+
+def checkout(client_name, client_timestamp, client_previous_timestamp):
+    print("  checkout: " + client_timestamp + " - " + client_previous_timestamp)
+
+def findTests(client_name):
+    print('  npm test')
+
 #getPackage()
-getNumDepsAndVersion()
+#getNumDepsAndVersion()
+verifyTests()
