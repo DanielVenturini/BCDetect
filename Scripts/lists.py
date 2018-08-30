@@ -15,7 +15,9 @@ For each package, get the quantity of dependencies and versions and save in the 
 
 '''
 verifyTests() - read to csv file and download from GitHub the source code. Then, use the checkout to change files.
-Verify in package.json the test script and search in files the files to tests
+Verify in package.json the test script and search in files the files to tests.
+
+if function='num_tests', read to csvfile and use 'npm view 'file_name' repository' go get repository URL
 '''
 
 import re
@@ -162,7 +164,7 @@ def getNumVersion(package, fileWriter):
 def getRepositoryURL(packageName):
     try:
         resp = subprocess.getstatusoutput('npm view {0} repository'.format(packageName))    # get the JSON with type and url
-        regex = re.compile('(\.com\/[@a-zA-Z0-9_]+([\/@\.a-zA-Z0-9_-])+)')                  # to find '/user/repository'
+        regex = re.compile('(\.(org|com)[\/|:][@a-zA-Z0-9_]+([\/@\.a-zA-Z0-9_-])+)')               # to find '.[org | com][/ | :]user/repository.git'
 
         if regex.search(resp[1]).group(0).__eq__('/home/venturini'):
             return ''
@@ -171,24 +173,35 @@ def getRepositoryURL(packageName):
     except AttributeError:
         return ''     # if hasnt repository
 
-def verifyTests(fileName='../CSV/npmreleases.csv'):
+def verifyTests(fileName='../CSV/npmreleases.csv', function='worker'):
     try:
         qtdThreads = int(sys.argv[1])
     except IndexError:
         print("Use: python3 lists.py <num_thread>")
         return
 
-    #qtdLines = 3065381
+    if function.__eq__('worker'):
+        function = worker
+    else:
+        function = num_tests
+
+    qtdLines = 3065381
     #qtdLines = 640
 
-    qtdLines = 80
+    #qtdLines = 80
     qtdRepo = 461640
     factor = int((qtdLines/qtdThreads)+1)   # divide for threads
+    threads = list(range(0, qtdThreads))
 
     for i in range(0, qtdThreads):
         csvReader = csv.reader(open(fileName, 'r'), delimiter=',', quotechar='\n')
-        t = threading.Thread(target=worker, args=(i*factor, ((i+1)*factor)-1, csvReader,))
-        t.start()
+        threads[i] = threading.Thread(target=function, args=(i*factor, ((i+1)*factor)-1, csvReader,))
+        threads[i].start()
+
+    for i in range(0, qtdThreads):          # wait for each threads
+        threads[i].join()
+
+    print("TODAS AS THREADS ACABARAM")
 
 def worker(begin, end, csvReader):
     print("Thread " + str(threading.get_ident() % 99) + " lendo de " + str(begin) + " ate " + str(end))
@@ -278,6 +291,38 @@ def getPath(repURL):
 
     return repURL[begin:end]
 
+def num_tests(begin, end, csvReader):
+    print("Thread " + str(threading.get_ident()) + " comecando em " + str(begin) + " e indo ate " + str(end))
+
+    for i in range(0, begin):
+        csvReader.__next__()            # ignoring lines that are not mine
+
+    client_name = ''  # name of client
+    last_client = ''
+
+    while begin < end:
+        begin += 1
+
+        try:
+            line = csvReader.__next__()             # read line
+            client_name = line[0]                   # client name
+
+            if last_client.__eq__(client_name):     # if is the same repo
+                continue
+
+            # arent the same repo
+            last_client = client_name
+
+            '''if getRepositoryURL(client_name).__eq__(''):
+                print('ERR: ' + str(failNum))
+            else:
+                print('OK!')'''
+            print(client_name + ' : ' + getRepositoryURL(client_name))
+
+        except StopIteration:
+            return
+
 #getPackage()
 #getNumDepsAndVersion()
-verifyTests()
+failNum = 0                     # num of fail repo
+verifyTests(function='num_tests')
