@@ -162,16 +162,11 @@ def getNumVersion(package, fileWriter):
     printResp(' ' + str(qtd+1), fileWriter, last=True)
 
 def getRepositoryURL(packageName):
-    try:
-        resp = subprocess.getstatusoutput('npm view {0} repository'.format(packageName))    # get the JSON with type and url
-        regex = re.compile('(\.(org|com)[\/|:][@a-zA-Z0-9_]+([\/@\.a-zA-Z0-9_-])+)')               # to find '.[org | com][/ | :]user/repository.git'
-
-        if regex.search(resp[1]).group(0).__eq__('/home/venturini'):
-            return ''
-        else:
-            return 'https://github' + regex.search(resp[1]).group(0)
-    except AttributeError:
-        return ''     # if hasnt repository
+    resp = subprocess.getstatusoutput('npm view {0} repository.url'.format(packageName))    # get the repository url
+    if resp[1].find('npm ERR!') == -1:                                                      # if dosent have err
+        return resp[1]
+    else:
+        return ''
 
 def verifyTests(fileName='../CSV/npmreleases.csv', function='worker'):
     try:
@@ -322,7 +317,37 @@ def num_tests(begin, end, csvReader):
         except StopIteration:
             return
 
+def csvAdapter(fileName):
+    fieldnames = ['client_name', 'client_timestamp', 'client_previous_timestamp', 'client_git_head', 'repository_link']    # fields in the new csv
+
+    csvReader = csv.reader(open(fileName), delimiter=',', quotechar='\n')
+    fileToWrite = open('npmreleases_reduzide.csv', 'w')
+    csvWriter = csv.DictWriter(fileToWrite, fieldnames=fieldnames)
+    csvWriter.writeheader()
+
+    last_client = ''
+    csvReader.__next__()            # ignore first line with fields
+    i = 0
+    try:
+        while True:
+            line = csvReader.__next__()
+            if last_client.__eq__(line[0]):
+                csvWriter.writerow({'client_name': line[0], 'client_timestamp': line[4], 'client_previous_timestamp': line[10], 'client_git_head': line[6], 'repository_link': ''})
+            else:
+                #csvWriter.writerow({'client_name': line[0], 'client_timestamp': line[4], 'client_previous_timestamp': line[10], 'client_git_head': line[6], 'repository_link': getRepositoryURL(line[0])})
+                i += 1
+                url = getRepositoryURL(line[0])
+                csvWriter.writerow({'client_name': line[0], 'client_timestamp': line[4], 'client_previous_timestamp': line[10], 'client_git_head': line[6], 'repository_link': url})
+                #print(i, ' - ', 461640, ' ' + line[0] + ' : ' + url)
+                print(i)
+                last_client = line[0]
+
+
+    except (StopIteration, KeyboardInterrupt):
+        print("Chegou no fim do arquivo")
+        fileToWrite.close()
+
 #getPackage()
 #getNumDepsAndVersion()
 failNum = 0                     # num of fail repo
-verifyTests(function='num_tests')
+#verifyTests(function='num_tests')
