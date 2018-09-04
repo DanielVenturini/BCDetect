@@ -330,6 +330,7 @@ def csvAdapter(fileName):
     i = 0
     try:
         while True:
+
             line = csvReader.__next__()
             if last_client.__eq__(line[0]):
                 csvWriter.writerow({'client_name': line[0], 'client_timestamp': line[4], 'client_previous_timestamp': line[10], 'client_git_head': line[6], 'repository_link': ''})
@@ -341,7 +342,6 @@ def csvAdapter(fileName):
                 #print(i, ' - ', 461640, ' ' + line[0] + ' : ' + url)
                 print(i)
                 last_client = line[0]
-
 
     except (StopIteration, KeyboardInterrupt):
         print("Chegou no fim do arquivo")
