@@ -2,10 +2,15 @@
 
 import csv
 
-class Reader(Exception):
+'''
+This file contains the implementations of the functions that are
+responsible to read the target file and return all values.
+'''
+
+class Reader():
 
     # file name, fields which be returneds
-    def __init__(self, fields, csvFileName='alex.csv'):
+    def __init__(self, fields, csvFileName):
 
         try:
             self.fileExists = False
@@ -19,30 +24,29 @@ class Reader(Exception):
             self.posFields = []                     # store the position of each field
             self.chechFields(fields)                # check fields -> client_version_num_2, dependency_name,
             self.fieldsExists = True
-        except FileNotFoundError:
+        except FileNotFoundError:                   # file isent in folder 'CSV/'
             self.fileexists = False
             raise
-        except Exception:
+        except Exception:                           # all fields isent in file
             self.fieldsExists = False
             raise
+
 
     # check if fields exists in the first row of the csv
     def chechFields(self, fields):
 
-        self.formalize(fields)
+        #self.formalize(fields)
         mainRow = self.csvReader.__next__()         # get first line which contains all fields
+        self.urlRepo = mainRow[-1]                  # url to clone repository
 
         for field in fields:                        # each required field
-            print(field)
             for pos, fieldRow in enumerate(mainRow):# each field in the first line
-                print('    ' + fieldRow)
                 if(field.__eq__(fieldRow)):
                     self.posFields.append(pos)
                     break
                 elif(pos == len(mainRow)-1):        # last position
                     raise Exception('NoFieldsFound')# if not found the field, raise exception
 
-        #print(self.posFields)
 
     # get the nexts values for each field
     # raise StopIteration when dont has more lines
