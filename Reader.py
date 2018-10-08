@@ -1,6 +1,8 @@
 # -*- coding: ISO8859-1 -*-
 
 import csv
+from Dependency import Dependency
+from Release import Release
 
 '''
 This file contains the implementations of the functions that are
@@ -60,7 +62,6 @@ class Reader():
         for i in self.posFields:
             values.append(line[i].replace('"', '')) # get each value
 
-        #print(values)
         return values
 
 
@@ -70,7 +71,7 @@ class Reader():
             fields[i] = '\"' + fields[i] + '\"'
 
 
-    # get the hash {'package@version': ['dep1@version', 'dep2@version']}
+    # get the hash {'version': release}
     def getFull(self):
         if(not self.fieldsExists or not self.fileExists):
             raise StopIteration
@@ -82,26 +83,19 @@ class Reader():
 
         try:
             while True:
-                # client_name, dependency_name, client_version_timestamp_1, client_version_timestamp_2, dependency_version_max_satisf_1, dependency_version_max_satisf_2
-                client, dependency, client_version_1, client_version_2, dependency_version_1, dependency_version_2 = self.next()
+                # client_name, client_version, client_timestamp, client_previous_timestamp, dependency_name, dependency_type, dependency_version_range
+                client_name, client_version, client_timestamp, client_previous_timestamp, dependency_name, dependency_type, dependency_version_range = self.next()
 
-                '''
-                print("Client: " + client)
-                print("Dependency: " + dependency)
-                print("client_version_1: " + client_version_1)
-                print("client_version_2: " + client_version_2)
-                print("dependency_version_1: " + dependency_version_1)
-                print("dependency_version_2: " + dependency_version_2)
-                '''
-
-                fullClient = "{0}@{1}".format(client, client_version)
-                fullDependency = '{0}@{1}'.format(dependency, dependency_version)
+                # name, version, type
+                dependency = Dependency(dependency_name, dependency_version_range, dependency_type)
 
                 try:
-                    self.hash[fullClient].append(fullDependency)
-                except KeyError:
-                    self.hash[fullClient] = []
-                    self.hash[fullClient].append(fullDependency)
+                    # release.addDependency
+                    self.hash[client_version].addDependency(dependency) # all dependencies in this version
+                except KeyError:                                        # if is first release in csv file
+                    release = Release(client_version)                   # create new release
+                    release.addDependency(dependency)                   # add dependency
+                    self.hash[client_version] = release                 # insert in hash
 
         except StopIteration:
             return self.hash
