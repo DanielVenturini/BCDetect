@@ -16,12 +16,12 @@ class Package:
             raise
 
     # update the value of the specify key
-    def update(self, dependency, type, version):
+    def update(self, dependency, version, type):
         if not self.fileExists:
             return
 
         try:
-            if type.__eq__('dependencies'):
+            if type.__eq__('dependency'):
                 self.fileJson['dependencies'][dependency] = version
             else:
                 self.fileJson['devDependencies'][dependency] = version
@@ -45,4 +45,4 @@ class Package:
 
     # save the current state of json to a file
     def save(self):
-        json.dump(self.fileJson, open(self.fileName, 'w'), indent=2, sort_keys=True)
+        json.dump(self.fileJson, open(self.fileName, 'w'))#, indent=2, sort_keys=True)

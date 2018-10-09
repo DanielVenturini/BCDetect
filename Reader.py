@@ -80,20 +80,27 @@ class Reader():
             return self.hash
 
         self.hash = {}
+        self.client_name = ''
 
         try:
             while True:
                 # client_name, client_version, client_timestamp, client_previous_timestamp, dependency_name, dependency_type, dependency_version_range
                 client_name, client_version, client_timestamp, client_previous_timestamp, dependency_name, dependency_type, dependency_version_range = self.next()
 
+                self.client_name = client_name
                 # name, version, type
                 dependency = Dependency(dependency_name, dependency_version_range, dependency_type)
 
                 try:
                     # release.addDependency
-                    self.hash[client_version].addDependency(dependency) # all dependencies in this version
+                    release = self.hash[client_version]                 # get the release
+
+                    if release.client_previous_timestamp.__eq__(''):    # if client_previous_timestamp is null
+                        release.client_previous_timestamp = client_previous_timestamp
+
+                    release.addDependency(dependency)
                 except KeyError:                                        # if is first release in csv file
-                    release = Release(client_version)                   # create new release
+                    release = Release(client_version, client_timestamp, client_previous_timestamp)  # create new release
                     release.addDependency(dependency)                   # add dependency
                     self.hash[client_version] = release                 # insert in hash
 

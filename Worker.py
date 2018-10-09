@@ -1,5 +1,4 @@
 # -*- coding:ISO8859-1 -*-
-import re
 import sys
 import subprocess
 from Package import Package
@@ -11,114 +10,129 @@ class Worker:
 
     # start work
     def start(self):
-        print("Starting worker")
-        subprocess.getstatusoutput('mkdir workspace/')      # if this path dont exists, create
-        subprocess.getstatusoutput('mkdir workspace/cache/')
+        version_package = ''
 
-        self.fullCSV = self.reader.getFull()
+        self.fullCSV = self.reader.getFull()                # get all versions of csv file
 
-        try:
+        client_name = self.reader.client_name
+        pathName = 'workspace/' + client_name
 
-            for fullClient in list(self.fullCSV.keys()):                # for each version: alex@1.6.0, alex@1.2.0, alex@4.0.0, ...
-                print('Client {0}'.format(fullClient))
-                # download, move and extract the file.tgz
-                self.get(fullClient)
-                '''
-                print("digite daniel")
-                sys.stdin.read(6)
-                client = fullClient.split('@')                          # ['alex', '1.6.0']
-                client, client_version = client[0], client[1]
-                '''
-                print('    UPDATE package.json')
+        subprocess.getstatusoutput('mkdir workspace/')                          # if this path dont exists, create
+        subprocess.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
 
-                self.package = Package()                                # open package.json
-                for fullDependency in list(self.fullCSV[fullClient]):   # for each dependency: unified@6.1.3, retext-profanities@4.1.0, remark-message-control@4.0.0, ...
+        # clone repository
+        self.clone(self.reader.urlRepo, client_name)
 
-                    dependency = fullDependency.split('@')
-                    dependency, dependency_version = dependency[0], dependency[1]
-                    print('        {0}'.format(fullDependency))
-                    self.package.update(dependency, dependency_version) # change the version of dependency in the package.json
+        # file to write
+        writer = open('workspace/' + client_name+'_results.csv', 'w')
+        writer.write("version, version_package, result\n")
 
-                self.package.save()                                     # save the changes in package.json
-                print('    UPDATED package.json')
-                '''
-                print("digite daniel")
-                sys.stdin.read(6)
-                '''
+        # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
+        for version in list(self.fullCSV.keys()):
+            finalCode = 'ERR'                               # if get any err
+            release = self.fullCSV[version]                 # get the release
 
-                print('\n')
+            try:
+                print('{0}: {1}-{2}'.format(release, release.client_timestamp, release.client_previous_timestamp))
 
-                try:
-                    self.npmInstall()                       # install alll dependents
-                    self.mochaTest()                        # first, check if current version work
-                except Exception:
-                    print('ERR')
+                # change the repository to specify date
+                self.checkout(pathName, release)
 
-        except subprocess.CalledProcessError:
-            print('ERR')
-            print('Cannot continue. Please, check the permissions of the path CSV/')
-        except StopIteration:
-            print("Complete...Finish")
+                # get the package without changes
+                subprocess.getstatusoutput('cp workspace/{0}/package.json workspace/'.format(client_name))
+
+                #input('')
+                print('    update package.json')
+                # open package.json
+                package = Package(pathName+'/package.json')
+
+                # for each dependencie in release
+                for dependencie in release.dependencies:
+                    # write all dependencies # json.end()
+                    print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
+                    package.update(dependencie.name, dependencie.version, dependencie.type)
+
+                version_package = package.get('version')
+                # close package.json
+                package.save()
+
+                #input('')
+                # install all dependencies
+                self.npmInstall(pathName)
+
+                #input('')
+                # npm test
+                self.npmTest(pathName)
+
+            except FileNotFoundError as ex:
+                print('ERR FNF: ' + str(ex))
+            except subprocess.TimeoutExpired as ex:
+                print("ERR: " + str(ex))
+            except Exception as ex:
+                print("ERR: " + str(ex))
+            else:
+                finalCode = 'OK'
+
+            #input('')
+            # delete folder node_modules and file package.json
+            self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
+            self.deleteCurrentFolder('{0}/package.json'.format(client_name))
+
+            #input('')
+            # save result
+            writer.write('{0}, {1}, {2}\n'.format(release.version, version_package, finalCode))
+            # get the package without changes
+            subprocess.getstatusoutput('rm workspace/{0}/package.json'.format(client_name))
+            subprocess.getstatusoutput('cp workspace/package.json workspace/{0}/'.format(client_name))
+
+        writer.close()
+        self.deleteCurrentFolder('{0}'.format(client_name))
+
+    # change the git tree to specify data
+    def checkout(self, pathName, release):
+        print('    checkout: ', end='', flush=True)
+        client_timestamp = release.client_timestamp
+        client_previous_timestamp = release.client_previous_timestamp
+
+        if client_previous_timestamp.__eq__(''):
+            if subprocess.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" master`'.format(pathName, client_timestamp))[0] != 0:
+                raise Exception('Wrong checkout')
+        else:
+            if subprocess.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" --after="{2}" master`'.format(pathName, client_timestamp, client_previous_timestamp))[0] != 0:
+                raise Exception('Wrong checkout')
+
+        print('OK')
 
 
-    # npm install --no-save --only=dev
-    def npmInstall(self):
+    # npm install
+    def npmInstall(self, pathName):
         print('    npm install: ', end='', flush=True)
-        if(subprocess.getstatusoutput('npm install --no-save --prefix ./workspace/package/')[0] != 0):
-            raise Exception
+        if subprocess.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(5*60)).returncode != 0:
+            raise Exception('Wrong NPM install')
 
         print('OK')
 
 
-    def mochaTest(self, test='current'):
-        print('    mocha {0} test: '.format(test), end='', flush=True)
-        if(subprocess.getstatusoutput('mocha workspace/package/index.js')[0] != 0):
-            raise Exception
+    # npm test /workspace/path
+    def npmTest(self, pathName):
+        print('    npm test: ', end='', flush=True)
+        if subprocess.run(['npm', 'test', '--prefix', './{0}'.format(pathName)], timeout=(5*60)).returncode != 0:
+            raise Exception('Wrong NPM test')
 
         print('OK')
 
 
-    # uninstall the current dependency and install the specify version
-    def changeDependencyVersion(self, dependency, version, change='change'):
-        print('        {0} version to '.format(change), end='', flush=True)
-        # uninstall the current
-        if(subprocess.getstatusoutput('npm uninstall {0} --no-save --prefix ./workspace/package/'.format(dependency))[0] != 0):
-            raise Exception
-
-        # install the specify version
-        if(subprocess.getstatusoutput('npm install {0}@{1} --no-save --prefix ./workspace/package/'.format(dependency, version))[0] != 0):
-            raise Exception
-
-        print('OK')
-
-
-    # download and extract source code of client
-    def get(self, client):
-        self.deleteCurrentFolder()  # delete the current package/
-
-        print('    Download: ', end='', flush=True)
+    # download repository
+    def clone(self, urlRepo, client_name):
+        print('Clone: ', end='', flush=True)
         # download source code
-        if(subprocess.getstatusoutput('npm pack ' + client)[0] != 0):
-            print('failed download of pack ' + client)
+        if(subprocess.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
+            print('ERR')
             raise Exception
-
-        print('OK')
-        print('    Move: ', end='', flush=True)
-        # move file to workspace
-        if(subprocess.getstatusoutput('mv '+client.replace('@', '-')+'.tgz workspace/cache/')[0] != 0):
-            print('Failed move {0}.tgz to workspace/cache/'.format(client.replace('@', '-')))
-            raise subprocess.CalledProcessError
-
-        print('OK')
-        print('    Extract: ', end='', flush=True)
-        # extract file to workspace
-        if(subprocess.getstatusoutput('tar -xzf workspace/cache/' + client.replace('@', '-')+'.tgz -C workspace')[0] != 0):
-            print('Failed extract {0} to workspace/'.format(client.replace('@', '-')))
-            raise subprocess.CalledProcessError
 
         print('OK')
 
 
     # only delete the current package folder
-    def deleteCurrentFolder(self):
-        subprocess.getstatusoutput('rm -rf workspace/package/')
+    def deleteCurrentFolder(self, client_name):
+        subprocess.getstatusoutput('rm -rf workspace/{0}'.format(client_name))

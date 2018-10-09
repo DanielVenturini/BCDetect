@@ -12,7 +12,7 @@ class BCDetect:
         self.allok = False
 
         try:
-            print("Checking if Node, NPM, TAR and GIT are installed.")
+            print("Checking if Node, NPM and GIT are installed.")
             self.verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')      # check node
             self.verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
             self.verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check git
@@ -50,4 +50,4 @@ class BCDetect:
         print()
         Worker(self.reader).start()
 
-BCDetect()#.work()
+BCDetect().work()
