@@ -16,19 +16,17 @@ class Package:
             raise
 
     # update the value of the specify key
-    def update(self, key, value):
+    def update(self, dependency, type, version):
         if not self.fileExists:
             return
 
         try:
-            self.fileJson['dependencies'][key]          # only for test if key exists
-            self.fileJson['dependencies'][key] = value
+            if type.__eq__('dependencies'):
+                self.fileJson['dependencies'][dependency] = version
+            else:
+                self.fileJson['devDependencies'][dependency] = version
         except KeyError:
-            try:
-                self.fileJson['devDependencies'][key]
-                self.fileJson['devDependencies'][key] = value
-            except KeyError:
-                print('Key {0} isn\'t in the JSON object.'.format(key))
+            print('Key \"dependencies/devDependencies\" or ' + dependency + ' isent in package.json')
 
 
     # get the value of the key
