@@ -13,6 +13,8 @@ class Worker:
         version_package = ''
 
         self.fullCSV = self.reader.getFull()                # get all versions of csv file
+        qtdSucess = 0
+        qtdFail = 0
 
         client_name = self.reader.client_name
         pathName = 'workspace/' + client_name
@@ -20,6 +22,7 @@ class Worker:
         subprocess.getstatusoutput('mkdir workspace/')                          # if this path dont exists, create
         subprocess.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
 
+        print('PACKAGE: ' + self.reader.csvFileName)
         # clone repository
         self.clone(self.reader.urlRepo, client_name)
 
@@ -28,13 +31,16 @@ class Worker:
         writer.write("version, version_package, result\n")
 
         # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
-        for version in list(self.fullCSV.keys()):
-            finalCode = 'ERR'                               # if get any err
-            release = self.fullCSV[version]                 # get the release
+        keys = list(self.fullCSV.keys())
+        keys.sort()                             # sort the keys
+        for version in keys:
+            finalCode = 'ERR'                   # if get any err
+            release = self.fullCSV[version]     # get the release
 
             try:
-                print('{0}: {1}-{2}'.format(release, release.client_timestamp, release.client_previous_timestamp))
+                print('\n=================={0}=================={1}-{2}=========================\n'.format(release, release.client_timestamp, release.client_previous_timestamp))
 
+                commitAll(client_name)
                 # change the repository to specify date
                 self.checkout(pathName, release)
 
@@ -65,12 +71,31 @@ class Worker:
                 self.npmTest(pathName)
 
             except FileNotFoundError as ex:
+                qtdFail += 1
                 print('ERR FNF: ' + str(ex))
+
+                if input().__eq__('OK'):
+                    finalCode = 'OK'
+                    qtdSucess += 1
+
             except subprocess.TimeoutExpired as ex:
+                qtdFail += 1
                 print("ERR: " + str(ex))
+
+                if input().__eq__('OK'):
+                    finalCode = 'OK'
+                    qtdSucess += 1
+
             except Exception as ex:
+                qtdFail += 1
                 print("ERR: " + str(ex))
+
+                if input().__eq__('OK'):
+                    finalCode = 'OK'
+                    qtdSucess += 1
+
             else:
+                qtdSucess += 1
                 finalCode = 'OK'
 
             #input('')
@@ -87,6 +112,10 @@ class Worker:
 
         writer.close()
         self.deleteCurrentFolder('{0}'.format(client_name))
+        self.deleteCurrentFolder('package.json')
+
+        print("Sucess:", qtdSucess)
+        print("Fail:", qtdFail)
 
     # change the git tree to specify data
     def checkout(self, pathName, release):
@@ -104,10 +133,14 @@ class Worker:
         print('OK')
 
 
+    def commitAll(self, client_name):
+        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/*'.format('/home/venturini/git/BCDetect', client_name))
+        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -m "." {0}/workspace/{1}/'.format('/home/venturini/git/BCDetect', client_name))
+
     # npm install
     def npmInstall(self, pathName):
         print('    npm install: ', end='', flush=True)
-        if subprocess.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(5*60)).returncode != 0:
+        if subprocess.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM install')
 
         print('OK')

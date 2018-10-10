@@ -8,7 +8,7 @@ from Reader import Reader
 
 class BCDetect:
 
-    def __init__(self):
+    def __init__(self, file):
         self.allok = False
 
         try:
@@ -18,18 +18,18 @@ class BCDetect:
             self.verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check git
 
             # some lines in csv dont have the value for "dependency_version_max_satisf_2". So, install the "dependency_version_max_satisf_1"
-            self.reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name", "dependency_type", "dependency_version_range"], csvFileName=sys.argv[1])
+            self.reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name", "dependency_type", "dependency_version_range"], csvFileName=file)
         except IndexError:      # no has filename.csv
             print("Wrong inicialization: BCDetect filename.csv")
         except AttributeError:  # no has some required program
             print("ERR!", end='\n')
             print("Some required program aren't installed")
         except FileNotFoundError:   # file not exists
-            print("File CSV/" + sys.argv[1] + " not found!")
+            print("File CSV/" + file + " not found!")
         except Exception:           # file dont contains the correct fields -> client_version_num_2, dependency_name
-            print("File CSV/" + sys.argv[1] + " dont have correct fields")
+            print("File CSV/" + file + " dont have correct fields")
         else:
-            print("File CSV/" + sys.argv[1] + " is OK")
+            print("File CSV/" + file + " is OK")
             self.allok = True
 
     # check if any required program are installed
@@ -50,4 +50,8 @@ class BCDetect:
         print()
         Worker(self.reader).start()
 
-BCDetect().work()
+if len(sys.argv) > 1:
+    for i in range(1, len(sys.argv)):
+        BCDetect(sys.argv[i]).work()
+else:
+    print("ERR: python3 BCDetect.py file1.csv file2.csv ...")

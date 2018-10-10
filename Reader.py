@@ -18,6 +18,7 @@ class Reader():
             self.fileExists = False
             self.fieldsExists = False
             self.hash = None
+            self.csvFileName = csvFileName
 
             csvfile = open('CSV/' + csvFileName)    # open file which is csv reader
             self.csvReader = csv.reader(csvfile, delimiter=',', quotechar='\n')

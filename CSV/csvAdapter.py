@@ -192,8 +192,11 @@ def toNpm():
 	arquivo2.close()
 
 import csv
+import threading
+
 def toCSV(package):
-	csvReader = csv.reader(open('npmdep.csv'), delimiter=',', quotechar='\n')
+	print("executando para o pacote " + package)
+	csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
 	arquivo2 = open(package+'.csv', 'w')
 	#                   0               2                   4                      5                      10                
 	fieldnames = ['client_name', 'client_version', 'client_timestamp', 'client_version_branch', 'client_previous_timestamp',
@@ -201,15 +204,21 @@ def toCSV(package):
 	'dependency_name', 'dependency_type', 'dependency_version_range', 'dependency_resolved_version']# cabecalho do novo arquivo
 	csvWriter = csv.DictWriter(arquivo2, fieldnames=fieldnames)										# abro como CSV
 	csvWriter.writeheader()																			# escrevo o cabecalho
-	qtdLinha = 0
+	#qtdLinha = 0
 	try:
 		while True:
-			qtdLinha += 1
+			#qtdLinha += 1
 			linha = csvReader.__next__()
 			if linha[0].__eq__(package):
 				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4],
 					'client_version_branch': linha[5], 'client_previous_timestamp': linha[10], 'dependency_name': linha[14],
 					'dependency_type': linha[15], 'dependency_version_range': linha[16], 'dependency_resolved_version': linha[18]})
 	except StopIteration:
-		print('Quantidade de linhas:', qtdLinha)
+		#print('Quantidade de linhas:', qtdLinha)
+		print('terminou para o pacote ' + pacote)
 		arquivo2.close()
+
+for package in ['inert','gulp-shell','csv','restler','chai','nunjucks','gulp-notify','mocha','grunt','restify','handlebars']:
+	threading.Thread(target=toCSV,args=(package,)).start()
+
+print('foi todas')
