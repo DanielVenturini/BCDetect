@@ -1,9 +1,8 @@
 # -*- coding:ISO8859-1 -*-
-import sys
 import subprocess
 from Package import Package
 
-class Worker:
+class Worker():
 
     def __init__(self, reader):
         self.reader = reader
@@ -11,6 +10,7 @@ class Worker:
     # start work
     def start(self):
         version_package = ''
+        currentDirectory = subprocess.getstatusoutput('pwd')[1]     # pwd -> /home/user/path/to/BCDetect
 
         self.fullCSV = self.reader.getFull()                # get all versions of csv file
         qtdSucess = 0
@@ -38,35 +38,29 @@ class Worker:
             release = self.fullCSV[version]     # get the release
 
             try:
-                print('\n=================={0}=================={1}-{2}=========================\n'.format(release, release.client_timestamp, release.client_previous_timestamp))
+                #print('\n=================={0}=================={1}-{2}============{3}=============\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
 
-                commitAll(client_name)
+                self.commitAll(client_name, currentDirectory)
                 # change the repository to specify date
                 self.checkout(pathName, release)
 
-                # get the package without changes
-                subprocess.getstatusoutput('cp workspace/{0}/package.json workspace/'.format(client_name))
-
-                #input('')
-                print('    update package.json')
+                #print('    update package.json')
                 # open package.json
                 package = Package(pathName+'/package.json')
 
                 # for each dependencie in release
                 for dependencie in release.dependencies:
                     # write all dependencies # json.end()
-                    print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
+                    #print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
                     package.update(dependencie.name, dependencie.version, dependencie.type)
 
                 version_package = package.get('version')
                 # close package.json
                 package.save()
 
-                #input('')
                 # install all dependencies
                 self.npmInstall(pathName)
 
-                #input('')
                 # npm test
                 self.npmTest(pathName)
 
@@ -74,41 +68,44 @@ class Worker:
                 qtdFail += 1
                 print('ERR FNF: ' + str(ex))
 
+                '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
+                '''
 
             except subprocess.TimeoutExpired as ex:
                 qtdFail += 1
                 print("ERR: " + str(ex))
 
+                '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
+                '''
 
             except Exception as ex:
                 qtdFail += 1
                 print("ERR: " + str(ex))
 
+                '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
+                '''
 
             else:
                 qtdSucess += 1
                 finalCode = 'OK'
 
-            #input('')
             # delete folder node_modules and file package.json
             self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
             self.deleteCurrentFolder('{0}/package.json'.format(client_name))
 
-            #input('')
             # save result
             writer.write('{0}, {1}, {2}\n'.format(release.version, version_package, finalCode))
             # get the package without changes
             subprocess.getstatusoutput('rm workspace/{0}/package.json'.format(client_name))
-            subprocess.getstatusoutput('cp workspace/package.json workspace/{0}/'.format(client_name))
 
         writer.close()
         self.deleteCurrentFolder('{0}'.format(client_name))
@@ -119,7 +116,7 @@ class Worker:
 
     # change the git tree to specify data
     def checkout(self, pathName, release):
-        print('    checkout: ', end='', flush=True)
+        #print('    checkout: ', end='', flush=True)
         client_timestamp = release.client_timestamp
         client_previous_timestamp = release.client_previous_timestamp
 
@@ -133,13 +130,14 @@ class Worker:
         print('OK')
 
 
-    def commitAll(self, client_name):
-        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/*'.format('/home/venturini/git/BCDetect', client_name))
-        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -m "." {0}/workspace/{1}/'.format('/home/venturini/git/BCDetect', client_name))
+    def commitAll(self, client_name, currentDirectory):
+        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/*'.format(currentDirectory, client_name))
+        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -m "." {0}/workspace/{1}/'.format(currentDirectory, client_name))
+
 
     # npm install
     def npmInstall(self, pathName):
-        print('    npm install: ', end='', flush=True)
+        #print('    npm install: ', end='', flush=True)
         if subprocess.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM install')
 
@@ -148,8 +146,8 @@ class Worker:
 
     # npm test /workspace/path
     def npmTest(self, pathName):
-        print('    npm test: ', end='', flush=True)
-        if subprocess.run(['npm', 'test', '--prefix', './{0}'.format(pathName)], timeout=(5*60)).returncode != 0:
+        #print('    npm test: ', end='', flush=True)
+        if subprocess.run(['npm', 'test', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM test')
 
         print('OK')
@@ -157,7 +155,7 @@ class Worker:
 
     # download repository
     def clone(self, urlRepo, client_name):
-        print('Clone: ', end='', flush=True)
+        #print('Clone: ', end='', flush=True)
         # download source code
         if(subprocess.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
             print('ERR')

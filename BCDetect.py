@@ -5,53 +5,105 @@ import sys
 import subprocess
 from Worker import Worker
 from Reader import Reader
+import threading
 
-class BCDetect:
+# check if any required program are installed
+def verifyRequired(prog, flag, regexString):
+    print(prog + ': ', end='')
 
-    def __init__(self, file):
-        self.allok = False
+    resp = subprocess.getoutput(prog + ' ' + flag)  # execute e.g. 'node -v' and get response
+    matchs = re.search(regexString, resp)           # get the strings matchs
 
-        try:
-            print("Checking if Node, NPM and GIT are installed.")
-            self.verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')      # check node
-            self.verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
-            self.verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check git
+    version = matchs.group(0)                       # get the first result, or raise AttributeError
+    print(version)
 
-            # some lines in csv dont have the value for "dependency_version_max_satisf_2". So, install the "dependency_version_max_satisf_1"
-            self.reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name", "dependency_type", "dependency_version_range"], csvFileName=file)
-        except IndexError:      # no has filename.csv
-            print("Wrong inicialization: BCDetect filename.csv")
-        except AttributeError:  # no has some required program
-            print("ERR!", end='\n')
-            print("Some required program aren't installed")
-        except FileNotFoundError:   # file not exists
-            print("File CSV/" + file + " not found!")
-        except Exception:           # file dont contains the correct fields -> client_version_num_2, dependency_name
-            print("File CSV/" + file + " dont have correct fields")
+def verifyPrograms():
+    try:
+        print("Checking if Node, NPM and GIT are installed.")
+        verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')      # check node
+        verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
+        verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check git
+
+    except IndexError:      # no has filename.csv
+        print("Wrong inicialization: BCDetect filename.csv")
+    except AttributeError:  # no has some required program
+        print("ERR!", end='\n')
+        print("Some required program aren't installed")
+
+
+def verifyFile(file):
+    try:
+        reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name",
+         "dependency_type", "dependency_resolved_version"], csvFileName=file)
+    except FileNotFoundError:   # file not exists
+        print("File CSV/" + file + " not found!")
+    except Exception:           # file dont contains the correct fields -> client_version_num_2, dependency_name
+        print("File CSV/" + file + " dont have correct fields")
+    else:
+        print("File CSV/" + file + " is OK")
+        return reader
+
+
+'''
+    First, verify all required programs.
+    After, verify csv file
+'''
+
+class Iterator:
+
+    def __init__(self, max):
+        self.lock = threading.Lock()
+        self.current = 0
+        self.max = max
+
+    def getNextPos(self):
+
+        self.lock.acquire(blocking=True)
+
+        self.current += 1
+        if self.current >= self.max:
+            current = -1
         else:
-            print("File CSV/" + file + " is OK")
-            self.allok = True
+            current = self.current
 
-    # check if any required program are installed
-    def verifyRequired(self, prog, flag, regexString):
-        print(prog + ': ', end='')
+        self.lock.release()
 
-        resp = subprocess.getoutput(prog + ' ' + flag)  # execute e.g. 'node -v' and get response
-        matchs = re.search(regexString, resp)           # get the strings matchs
+        return current
 
-        version = matchs.group(0)                       # get the first result, or raise AttributeError
-        print(version)
+class Execute(threading.Thread):
+    def __init__(self, iterator):
+        threading.Thread.__init__(self)
 
-    # call the worker
-    def work(self):
-        if not self.allok:
-            return
+        self.iterator = iterator
 
-        print()
-        Worker(self.reader).start()
+    def run(self):
+        while True:
+
+            pos = self.iterator.getNextPos()
+            if pos == -1:
+                return
+
+            fileName = sys.argv[pos]+'.csv'
+            try:
+                reader = verifyFile(fileName)
+                Worker(reader).start()
+            except Exception:
+                continue
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 if len(sys.argv) > 1:
-    for i in range(1, len(sys.argv)):
-        BCDetect(sys.argv[i]).work()
+
+    # vefiry all required programs
+    verifyPrograms()
+
+    # one iterator and four threads
+    iterator = Iterator(30)
+    Execute(iterator).start()
+    Execute(iterator).start()
+    Execute(iterator).start()
+    Execute(iterator).start()
+
 else:
     print("ERR: python3 BCDetect.py file1.csv file2.csv ...")

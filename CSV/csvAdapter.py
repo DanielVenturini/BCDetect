@@ -1,11 +1,3 @@
-Baixar todas as versões de um pacote cliente.
-Baixar todas as dependencias de cada cliente na release espécífica
-Rodar o npm teste para ver se quebra
-Rodar o npm mutante teste para ver se quebra
-Se não , testar a próxima versão
-Se quebrar, 
-
-
 import csv
 import os
 import subprocess
@@ -192,33 +184,55 @@ def toNpm():
 	arquivo2.close()
 
 import csv
-import threading
 
 def toCSV(package):
 	print("executando para o pacote " + package)
 	csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
 	arquivo2 = open(package+'.csv', 'w')
-	#                   0               2                   4                      5                      10                
-	fieldnames = ['client_name', 'client_version', 'client_timestamp', 'client_version_branch', 'client_previous_timestamp',
-	#     14                    15                 16                               18               
-	'dependency_name', 'dependency_type', 'dependency_version_range', 'dependency_resolved_version']# cabecalho do novo arquivo
+	#                   0               2                   4                      10
+	fieldnames = ['client_name', 'client_version', 'client_timestamp', 'client_previous_timestamp',
+	#     14                    15                 18
+	'dependency_name', 'dependency_type', 'dependency_resolved_version']# cabecalho do novo arquivo
 	csvWriter = csv.DictWriter(arquivo2, fieldnames=fieldnames)										# abro como CSV
 	csvWriter.writeheader()																			# escrevo o cabecalho
-	#qtdLinha = 0
 	try:
 		while True:
 			#qtdLinha += 1
 			linha = csvReader.__next__()
+
 			if linha[0].__eq__(package):
-				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4],
-					'client_version_branch': linha[5], 'client_previous_timestamp': linha[10], 'dependency_name': linha[14],
-					'dependency_type': linha[15], 'dependency_version_range': linha[16], 'dependency_resolved_version': linha[18]})
+				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4], 
+					'client_previous_timestamp': linha[10], 'dependency_name': linha[14], 'dependency_type': linha[15],
+					'dependency_resolved_version': linha[18]})
+
 	except StopIteration:
-		#print('Quantidade de linhas:', qtdLinha)
-		print('terminou para o pacote ' + pacote)
+		print('terminou para o pacote ' + package)
 		arquivo2.close()
 
-for package in ['inert','gulp-shell','csv','restler','chai','nunjucks','gulp-notify','mocha','grunt','restify','handlebars']:
-	threading.Thread(target=toCSV,args=(package,)).start()
+import csv
+import subprocess
+import random
 
-print('foi todas')
+def toJackieChan():
+	qtd = 0
+	linhasSorteadas = []
+	csvWriter = open('pacotessorteados.csv', 'w')
+	csvWriter.write('pacote, qtd_versoes, qtd_dependentes\n')
+	while qtd < 30:									# recupera 30 pacotes
+		csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
+		packageLine = random.randint(0, 31608634)	# sorteia uma linha
+		print('linha sorteada:', packageLine)
+		if linhasSorteadas.count(packageLine):		# se esta linha já foi sorteada
+			continue								# volta ao começo e sorteia novamente
+		linhasSorteadas.append(packageLine)			# adiciona como linha já sorteada
+		line = 1
+		while line < packageLine:					# avança até a linha sorteada
+			csvReader.__next__()
+			line += 1
+		pacote = csvReader.__next__()[0]
+		qtdVersoes = subprocess.getstatusoutput('npm view {0} versions'.format(pacote))[1].count(',')+1
+		qtdDepende = subprocess.getstatusoutput('npm view {0} dependencies'.format(pacote))[1].count(',')+1
+		print('{0}, {1}, {2}'.format(pacote, qtdVersoes, qtdDepende))
+		if qtdVersoes > 3 and qtdDepende > 3:
+			qtd += 1
+			csvWriter.write('{0}, {1}, {2}\n'.format(pacote, qtdVersoes, qtdDepende))
