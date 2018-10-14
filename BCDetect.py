@@ -9,10 +9,10 @@ import threading
 import NodeManager
 
 # check if any required program are installed
-def verifyRequired(prog, flag, regexString):
+def verifyRequired(prog, call, flag, regexString):
     print(prog + ': ', end='')
 
-    resp = subprocess.getoutput(prog + ' ' + flag)  # execute e.g. 'node -v' and get response
+    resp = subprocess.getoutput(call + ' ' + flag)  # execute e.g. 'node -v' and get response
     matchs = re.search(regexString, resp)           # get the strings matchs
 
     version = matchs.group(0)                       # get the first result, or raise AttributeError
@@ -21,10 +21,10 @@ def verifyRequired(prog, flag, regexString):
 def verifyPrograms():
     try:
         print("Checking if Node, NPM, GIT and NVM are installed.")
-        verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')       # check node
-        verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')          # check npm
-        verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*') # check git
-        verifyRequired('bash nvm.sh', 'version', '[\d]\.[\d]+\.[\d]+')    # check nvm
+        verifyRequired('NodeJs', 'node', '-v', '^v[\d]+\.[\d]+\.[\d]+')         # check node
+        verifyRequired('NPM', 'npm', '-v', '[\d]+\.[\d]+\.[\d]+')               # check npm
+        verifyRequired('Git', 'git', '--version', '[\d]\.[\d]+(\.[\d]+)*')      # check git
+        verifyRequired('NVM', 'bash nvm.sh', 'version', '[\d]\.[\d]+\.[\d]+')   # check nvm
     except AttributeError:  # no has some required program
         print("ERR!", end='\n')
         print("Some required program aren't installed")
@@ -48,6 +48,8 @@ def verifyFile(file):
     After, verify csv file
 '''
 
+# each thread get one pos in argv
+# to get file1.csv, file2.csv, file3.csv ...
 class Iterator:
 
     def __init__(self, max):
@@ -91,7 +93,6 @@ class Execute(threading.Thread):
                 continue
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 
 if len(sys.argv) > 1:
     # vefiry all required programs
