@@ -24,7 +24,7 @@ def verifyPrograms():
         verifyRequired('NodeJs', 'node', '-v', '^v[\d]+\.[\d]+\.[\d]+')         # check node
         verifyRequired('NPM', 'npm', '-v', '[\d]+\.[\d]+\.[\d]+')               # check npm
         verifyRequired('Git', 'git', '--version', '[\d]\.[\d]+(\.[\d]+)*')      # check git
-        verifyRequired('NVM', 'bash nvm.sh', 'version', '[\d]\.[\d]+\.[\d]+')   # check nvm
+        verifyRequired('NVM', 'bash nvm.sh', '--version', '[\d]\.[\d]+\.[\d]+') # check nvm
     except AttributeError:  # no has some required program
         print("ERR!", end='\n')
         print("Some required program aren't installed")

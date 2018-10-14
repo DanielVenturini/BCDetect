@@ -8,8 +8,9 @@
 # this function load the env of NVM
 
 # Use:
-# bash nvm.sh version
-# bash nvm.sh install x.y.z#!/bin/bash
+# bash nvm.sh --version         -> get the version of nvm
+# bash nvm.sh version x.y.z     -> get if specify version of node is installed
+# bash nvm.sh install x.y.z
 # bash nvm.sh npm install ./path/to/test x.y.z
 # bash nvm.sh npm test ./path/to/test x.y.z
 
@@ -23,6 +24,12 @@ loads_nvm() {
 nvm_version() {
     loads_nvm
 	nvm --version   # here, nvm is a program
+}
+
+# get info if specify version is installed
+node_version() {
+    loads_nvm
+    node -v
 }
 
 # install the specify version $2
@@ -50,7 +57,7 @@ npm_test() {
 }
 
 correct_usage() {
-    echo "bash nvm.sh [version] | [install] x.y.z | npm [test|install] ./path/to/operation x.y.x"
+    echo "bash nvm.sh [version] x.y.z | [install] x.y.z | npm [test|install] ./path/to/operation x.y.x"
 }
 
 # bash nvm.sh version
@@ -59,10 +66,12 @@ correct_usage() {
 # bash nvm.sh npm test ./path/to/test x.y.z
 
 main() {
-	if [ $1 = "version" ]; then
+	if [ $1 = "--version" ]; then
         nvm_version
     elif [ -z $2 ]; then                # the follows need the $2, version
         correct_usage
+    elif [ $1 = "version" ]; then
+        node_version $2
 	elif [ $1 = "install" ]; then
 		nvm_install $2
 	elif [ -z $3 ] || [ -z $4 ]; then   # the follows need the $3 - ./path/to - and $4 - x.y.z
