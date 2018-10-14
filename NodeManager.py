@@ -58,7 +58,7 @@ def printLine(num, version):
 # install all required versions of node js
 def installAllVersions():
 
-    print('Install all - 11 - required versions of NodeJs')
+    print('\nInstall all - 11 - required versions of NodeJs')
     for i, date in enumerate(nodeDates):
 
         version = nodeVersions[date]
@@ -69,6 +69,7 @@ def installAllVersions():
 
         print("OK")
 
+    print('')
 
 # based in date, get the latest version
 # of Node before this date

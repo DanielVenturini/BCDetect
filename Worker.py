@@ -1,6 +1,7 @@
 # -*- coding:ISO8859-1 -*-
-import subprocess
+import subprocess as sp
 from Package import Package
+import NodeManager
 
 class Worker():
 
@@ -10,7 +11,7 @@ class Worker():
     # start work
     def start(self):
         version_package = ''
-        currentDirectory = subprocess.getstatusoutput('pwd')[1]     # pwd -> /home/user/path/to/BCDetect
+        currentDirectory = sp.getstatusoutput('pwd')[1]     # pwd -> /home/user/path/to/BCDetect
 
         self.fullCSV = self.reader.getFull()                # get all versions of csv file
         qtdSucess = 0
@@ -19,26 +20,30 @@ class Worker():
         client_name = self.reader.client_name
         pathName = 'workspace/' + client_name
 
-        subprocess.getstatusoutput('mkdir workspace/')                          # if this path dont exists, create
-        subprocess.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
+        sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))  # delete this path - if contain - to dont conflit with git
+        sp.getstatusoutput('mkdir workspace/')                          # if this path dont exists, create
+        sp.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
 
-        print('PACKAGE: ' + self.reader.csvFileName)
         # clone repository
         self.clone(self.reader.urlRepo, client_name)
 
         # file to write
         writer = open('workspace/' + client_name+'_results.csv', 'w')
-        writer.write("version, version_package, result\n")
+        writer.write("version, version_package, install, test\n")
 
         # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
         keys = list(self.fullCSV.keys())
         keys.sort()                             # sort the keys
         for version in keys:
-            finalCode = 'ERR'                   # if get any err
+            codeInstall = 'ERR'                 # if get any err
+            codeTest = 'ERR'
+
             release = self.fullCSV[version]     # get the release
 
+            # get the latest node version of this release
+            nodeVersion = NodeManager.getVersionOnDate(release.client_timestamp)
             try:
-                print('\n=================={0}=================={1}-{2}============{3}=============\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
+                print('\n==={0}==={1}-{2}==={3}===NodeJs@{4}===\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name, nodeVersion))
 
                 self.commitAll(client_name, currentDirectory)
                 # change the repository to specify date
@@ -59,57 +64,48 @@ class Worker():
                 package.save()
 
                 # install all dependencies
-                self.npmInstall(pathName)
+                self.npmInstall(pathName, nodeVersion)
+                codeInstall = 'OK'
 
                 # npm test
-                self.npmTest(pathName)
+                self.npmTest(pathName, nodeVersion)
+                codeTest = 'OK'
 
             except FileNotFoundError as ex:
                 qtdFail += 1
                 print('ERR FNF: ' + str(ex))
-
-                #'''
+                '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
-                #'''
-
-            except subprocess.TimeoutExpired as ex:
+                '''
+            except sp.TimeoutExpired as ex:
                 qtdFail += 1
                 print("ERR: " + str(ex))
-
-                #'''
+                '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
-                #'''
-
+                '''
             except Exception as ex:
                 qtdFail += 1
                 print("ERR: " + str(ex))
-
-                #'''
+                '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
-                #'''
-
+                '''
             else:
                 qtdSucess += 1
-                finalCode = 'OK'
 
             # delete folder node_modules and file package.json
             self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
-            self.deleteCurrentFolder('{0}/package.json'.format(client_name))
 
             # save result
-            writer.write('{0}, {1}, {2}\n'.format(release.version, version_package, finalCode))
-            # get the package without changes
-            subprocess.getstatusoutput('rm workspace/{0}/package.json'.format(client_name))
+            writer.write('{0}, {1}, {2}, {3}\n'.format(release.version, version_package, codeInstall, codeTest))
 
         writer.close()
         self.deleteCurrentFolder('{0}'.format(client_name))
-        self.deleteCurrentFolder('package.json')
 
         print("Sucess:", qtdSucess)
         print("Fail:", qtdFail)
@@ -121,33 +117,33 @@ class Worker():
         client_previous_timestamp = release.client_previous_timestamp
 
         if client_previous_timestamp.__eq__(''):
-            if subprocess.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" master`'.format(pathName, client_timestamp))[0] != 0:
+            if sp.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" master`'.format(pathName, client_timestamp))[0] != 0:
                 raise Exception('Wrong checkout')
         else:
-            if subprocess.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" --after="{2}" master`'.format(pathName, client_timestamp, client_previous_timestamp))[0] != 0:
+            if sp.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" --after="{2}" master`'.format(pathName, client_timestamp, client_previous_timestamp))[0] != 0:
                 raise Exception('Wrong checkout')
 
         print('OK')
 
 
-    def commitAll(self, client_name, currentDirectory):
-        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/*'.format(currentDirectory, client_name))
-        subprocess.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -m "." {0}/workspace/{1}/'.format(currentDirectory, client_name))
+    def commitAll(self, client_name, currentDirectory, error=0):
+        sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/*'.format(currentDirectory, client_name))
+        sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -n -m "." {0}/workspace/{1}/'.format(currentDirectory, client_name))
 
 
     # npm install
-    def npmInstall(self, pathName):
+    def npmInstall(self, pathName, nodeVersion):
         print('    npm install: ', end='', flush=True)
-        if subprocess.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
+        if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM install')
 
         print('OK')
 
 
     # npm test /workspace/path
-    def npmTest(self, pathName):
+    def npmTest(self, pathName, nodeVersion):
         print('    npm test: ', end='', flush=True)
-        if subprocess.run(['npm', 'test', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
+        if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM test')
 
         print('OK')
@@ -157,7 +153,7 @@ class Worker():
     def clone(self, urlRepo, client_name):
         print('Clone: ', end='', flush=True)
         # download source code
-        if(subprocess.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
+        if(sp.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
             print('ERR')
             raise Exception
 
@@ -166,4 +162,4 @@ class Worker():
 
     # only delete the current package folder
     def deleteCurrentFolder(self, client_name):
-        subprocess.getstatusoutput('rm -rf workspace/{0}'.format(client_name))
+        sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))
