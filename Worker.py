@@ -38,20 +38,20 @@ class Worker():
             release = self.fullCSV[version]     # get the release
 
             try:
-                #print('\n=================={0}=================={1}-{2}============{3}=============\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
+                print('\n=================={0}=================={1}-{2}============{3}=============\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
 
                 self.commitAll(client_name, currentDirectory)
                 # change the repository to specify date
                 self.checkout(pathName, release)
 
-                #print('    update package.json')
+                print('    update package.json')
                 # open package.json
                 package = Package(pathName+'/package.json')
 
                 # for each dependencie in release
                 for dependencie in release.dependencies:
                     # write all dependencies # json.end()
-                    #print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
+                    print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
                     package.update(dependencie.name, dependencie.version, dependencie.type)
 
                 version_package = package.get('version')
@@ -68,31 +68,31 @@ class Worker():
                 qtdFail += 1
                 print('ERR FNF: ' + str(ex))
 
-                '''
+                #'''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
-                '''
+                #'''
 
             except subprocess.TimeoutExpired as ex:
                 qtdFail += 1
                 print("ERR: " + str(ex))
 
-                '''
+                #'''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
-                '''
+                #'''
 
             except Exception as ex:
                 qtdFail += 1
                 print("ERR: " + str(ex))
 
-                '''
+                #'''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
-                '''
+                #'''
 
             else:
                 qtdSucess += 1
@@ -116,7 +116,7 @@ class Worker():
 
     # change the git tree to specify data
     def checkout(self, pathName, release):
-        #print('    checkout: ', end='', flush=True)
+        print('    checkout: ', end='', flush=True)
         client_timestamp = release.client_timestamp
         client_previous_timestamp = release.client_previous_timestamp
 
@@ -137,7 +137,7 @@ class Worker():
 
     # npm install
     def npmInstall(self, pathName):
-        #print('    npm install: ', end='', flush=True)
+        print('    npm install: ', end='', flush=True)
         if subprocess.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM install')
 
@@ -146,7 +146,7 @@ class Worker():
 
     # npm test /workspace/path
     def npmTest(self, pathName):
-        #print('    npm test: ', end='', flush=True)
+        print('    npm test: ', end='', flush=True)
         if subprocess.run(['npm', 'test', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:
             raise Exception('Wrong NPM test')
 
@@ -155,7 +155,7 @@ class Worker():
 
     # download repository
     def clone(self, urlRepo, client_name):
-        #print('Clone: ', end='', flush=True)
+        print('Clone: ', end='', flush=True)
         # download source code
         if(subprocess.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
             print('ERR')

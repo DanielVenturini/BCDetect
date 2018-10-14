@@ -6,6 +6,7 @@ import subprocess
 from Worker import Worker
 from Reader import Reader
 import threading
+import NodeManager
 
 # check if any required program are installed
 def verifyRequired(prog, flag, regexString):
@@ -19,13 +20,11 @@ def verifyRequired(prog, flag, regexString):
 
 def verifyPrograms():
     try:
-        print("Checking if Node, NPM and GIT are installed.")
-        verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')      # check node
-        verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')         # check npm
-        verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*')# check git
-
-    except IndexError:      # no has filename.csv
-        print("Wrong inicialization: BCDetect filename.csv")
+        print("Checking if Node, NPM, GIT and NVM are installed.")
+        verifyRequired('node', '-v', '^v[\d]+\.[\d]+\.[\d]+')       # check node
+        verifyRequired('npm', '-v', '[\d]+\.[\d]+\.[\d]+')          # check npm
+        verifyRequired('git', '--version', '[\d]\.[\d]+(\.[\d]+)*') # check git
+        verifyRequired('bash nvm.sh', 'version', '[\d]\.[\d]+\.[\d]+')    # check nvm
     except AttributeError:  # no has some required program
         print("ERR!", end='\n')
         print("Some required program aren't installed")
@@ -88,18 +87,20 @@ class Execute(threading.Thread):
                 reader = verifyFile(fileName)
                 Worker(reader).start()
             except Exception:
+                print('voltou')
                 continue
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 if len(sys.argv) > 1:
-
     # vefiry all required programs
     verifyPrograms()
 
+    NodeManager.installAllVersions()
+
     # one iterator and four threads
-    iterator = Iterator(30)
+    iterator = Iterator(len(sys.argv))
     Execute(iterator).start()
     Execute(iterator).start()
     Execute(iterator).start()
