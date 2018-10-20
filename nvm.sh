@@ -29,7 +29,7 @@ nvm_version() {
 # get info if specify version is installed
 node_version() {
     loads_nvm
-    node -v
+    nvm version $1
 }
 
 # install the specify version $2

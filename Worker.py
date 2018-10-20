@@ -40,10 +40,8 @@ class Worker():
 
             release = self.fullCSV[version]     # get the release
 
-            # get the latest node version of this release
-            nodeVersion = NodeManager.getVersionOnDate(release.client_timestamp)
             try:
-                print('\n==={0}==={1}-{2}==={3}===NodeJs@{4}===\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name, nodeVersion))
+                print('\n==={0}==={1}-{2}==={3}===NodeJs===\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
 
                 self.commitAll(client_name, currentDirectory)
                 # change the repository to specify date
@@ -63,13 +61,28 @@ class Worker():
                 # close package.json
                 package.save()
 
-                # install all dependencies
-                self.npmInstall(pathName, nodeVersion)
-                codeInstall = 'OK'
+                # get the latest node version of this release
+                versionPackage, versionDate = NodeManager.getVersion(package, release.client_timestamp)
 
-                # npm test
-                self.npmTest(pathName, nodeVersion)
-                codeTest = 'OK'
+                try:
+                    print("Tentando instalar com a versao: {0}".format(versionPackage))
+                    # install all dependencies
+                    self.npmInstall(pathName, versionPackage)
+                    codeInstall = 'OK'
+                except Exception:
+                    print("Tentando instalar com a versao: {0}".format(versionDate))
+                    self.npmInstall(pathName, versionDate)
+                    codeInstall = 'OK'
+
+                try:
+                    print("Tentando testar com a versao: {0}".format(versionPackage))
+                    # npm test
+                    self.npmTest(pathName, versionPackage)
+                    codeTest = 'OK'
+                except Exception:
+                    print("Tentando testar com a versao: {0}".format(versionDate))
+                    self.npmTest(pathName, versionDate)
+                    codeTest = 'OK'
 
             except FileNotFoundError as ex:
                 qtdFail += 1
@@ -132,22 +145,18 @@ class Worker():
 
 
     # npm install
-    def npmInstall(self, pathName, nodeVersion):
+    def npmInstall(self, pathName, version):
         print('    npm install: ', end='', flush=True)
-        if sp.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:       # if has error
-            print("TENTANDO NOVAMENTE COM A VERSAO ESPECIFICA")
-            if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0:  # try with specify version
-                raise Exception('Wrong NPM install')
+        if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
+            raise Exception('Wrong NPM install')
 
         print('OK')
 
 
     # npm test /workspace/path
-    def npmTest(self, pathName, nodeVersion):
+    def npmTest(self, pathName, version):
         print('    npm test: ', end='', flush=True)
-        if sp.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10 * 60)).returncode != 0:  # if has error
-            print("TENTANDO NOVAMENTE COM A VERSAO ESPECIFICA")
-            if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0: # try again with specify version
+        if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error
                 raise Exception('Wrong NPM test')
 
         print('OK')
