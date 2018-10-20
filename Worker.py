@@ -134,8 +134,10 @@ class Worker():
     # npm install
     def npmInstall(self, pathName, nodeVersion):
         print('    npm install: ', end='', flush=True)
-        if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0:
-            raise Exception('Wrong NPM install')
+        if sp.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10*60)).returncode != 0:       # if has error
+            print("TENTANDO NOVAMENTE COM A VERSAO ESPECIFICA")
+            if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0:  # try with specify version
+                raise Exception('Wrong NPM install')
 
         print('OK')
 
@@ -143,8 +145,10 @@ class Worker():
     # npm test /workspace/path
     def npmTest(self, pathName, nodeVersion):
         print('    npm test: ', end='', flush=True)
-        if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0:
-            raise Exception('Wrong NPM test')
+        if sp.run(['npm', 'install', '--prefix', './{0}'.format(pathName)], timeout=(10 * 60)).returncode != 0:  # if has error
+            print("TENTANDO NOVAMENTE COM A VERSAO ESPECIFICA")
+            if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(nodeVersion)], timeout=(10*60)).returncode != 0: # try again with specify version
+                raise Exception('Wrong NPM test')
 
         print('OK')
 

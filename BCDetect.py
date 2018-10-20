@@ -28,6 +28,7 @@ def verifyPrograms():
     except AttributeError:  # no has some required program
         print("ERR!", end='\n')
         print("Some required program aren't installed")
+        raise
 
 
 def verifyFile(file):
@@ -96,16 +97,19 @@ class Execute(threading.Thread):
 
 if len(sys.argv) > 1:
     # vefiry all required programs
-    verifyPrograms()
+    try:
+        verifyPrograms()
 
-    NodeManager.installAllVersions()
+        NodeManager.installAllVersions()
 
-    # one iterator and four threads
-    iterator = Iterator(len(sys.argv))
-    Execute(iterator).start()
-    Execute(iterator).start()
-    Execute(iterator).start()
-    Execute(iterator).start()
+        # one iterator and four threads
+        iterator = Iterator(len(sys.argv))
+        Execute(iterator).start()
+        Execute(iterator).start()
+        Execute(iterator).start()
+        Execute(iterator).start()
+    except AttributeError:
+        pass
 
 else:
     print("ERR: python3 BCDetect.py file1.csv file2.csv ...")

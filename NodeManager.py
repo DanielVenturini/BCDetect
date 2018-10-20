@@ -80,3 +80,24 @@ def getVersionOnDate(date):
             return nodeVersions[dateNode]   # get the node version in this date
 
     return nodeVersions[nodeDates[-1]]      # latest version
+
+
+# return the version if there is in package
+# if the developer put the version in 'engines'->'node', get this
+def getVersionOnPackage(package):
+    engines = package.get('engines')        # get the map engines, if exists, or raise KeyError
+    version = engines['node']               # get the version of node
+    return version
+
+
+# return the version of NodeJs if there is in package.json
+# or, return the version basead in the date
+def getVersion(package, date):
+    # first, try to get the version on the package.json
+    # if none, get based in the date of release
+    try:
+        version = getVersionOnPackage(package)
+        return version
+    except KeyError:
+        version = getVersionOnDate(date)
+        return version
