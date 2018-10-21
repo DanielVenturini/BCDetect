@@ -156,7 +156,8 @@ class Worker():
     # npm test /workspace/path
     def npmTest(self, pathName, version):
         print('    npm test: ', end='', flush=True)
-        if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error
+        if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error, try with lattest node version
+            if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '10.9.0'], timeout=(10 * 60)).returncode != 0:         # if has error
                 raise Exception('Wrong NPM test')
 
         print('OK')
