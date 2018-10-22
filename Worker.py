@@ -35,9 +35,6 @@ class Worker():
         keys = list(self.fullCSV.keys())
         keys.sort()                             # sort the keys
         for version in keys:
-            codeInstall = 'ERR'                 # if get any err
-            codeTest = 'ERR'
-
             release = self.fullCSV[version]     # get the release
 
             try:
@@ -65,23 +62,31 @@ class Worker():
                 versionPackage, versionDate = NodeManager.getVersion(package, release.client_timestamp)
 
                 try:
-                    print("Tentando instalar com a versao: {0}".format(versionPackage))
-                    # install all dependencies
-                    self.npmInstall(pathName, versionPackage)
-                    codeInstall = 'OK'
-                except Exception:
-                    print("Tentando instalar com a versao: {0}".format(versionDate))
-                    self.npmInstall(pathName, versionDate)
-                    codeInstall = 'OK'
+                    codeInstall = 'ERR'  # if get any err
+                    codeTest = 'ERR'
 
-                try:
-                    print("Tentando testar com a versao: {0}".format(versionPackage))
-                    # npm test
-                    self.npmTest(pathName, versionPackage)
-                    codeTest = 'OK'
-                except Exception:
-                    print("Tentando testar com a versao: {0}".format(versionDate))
-                    self.npmTest(pathName, versionDate)
+                    # if package.json has version
+                    if not versionPackage.__eq__(' '):
+                        # install all dependencies and test in specify version package
+                        self.npmInstall(pathName, versionPackage)
+                        codeInstall = 'OK'
+                        self.npmTest(pathName, versionPackage)
+                        codeTest = 'OK'
+                    else:
+                        self.npmInstall(pathName, versionDate)
+                        codeInstall = 'OK'
+                        self.npmTest(pathName, versionDate)
+                        codeTest = 'OK'
+
+                except Exception:   # try with latest version of node: 10.7.0
+
+                    codeInstall = 'ERR'  # if get any err
+                    codeTest = 'ERR'
+                    self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
+
+                    self.npmInstall(pathName, '10.7.0')
+                    codeInstall = 'OK'
+                    self.npmTest(pathName, '10.7.0')
                     codeTest = 'OK'
 
             except FileNotFoundError as ex:
@@ -147,7 +152,7 @@ class Worker():
     # npm install
     def npmInstall(self, pathName, version):
         print('    npm install: ', end='', flush=True)
-        if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
+        if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
             raise Exception('Wrong NPM install')
 
         print('OK')
@@ -156,9 +161,8 @@ class Worker():
     # npm test /workspace/path
     def npmTest(self, pathName, version):
         print('    npm test: ', end='', flush=True)
-        if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error, try with lattest node version
-            if version.__eq__(' ') or sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '10.9.0'], timeout=(10 * 60)).returncode != 0:         # if has error
-                raise Exception('Wrong NPM test')
+        if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error, try with lattest node version
+            raise Exception('Wrong NPM test')
 
         print('OK')
 

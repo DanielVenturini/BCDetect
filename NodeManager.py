@@ -124,7 +124,7 @@ def getVersion(package, date):
         if not isInstalled(versionPackage):
             installVersion(versionPackage)             # try install
 
-    except (KeyError, IndexError):
+    except (KeyError, IndexError, AttributeError):
         versionPackage = ' '
     finally:
         versionDate = getVersionOnDate(date)
