@@ -59,34 +59,28 @@ class Worker():
                 package.save()
 
                 # get the latest node version of this release
-                versionPackage, versionDate = NodeManager.getVersion(package, release.client_timestamp)
+                versionPackage = NodeManager.getVersion(package, release.client_timestamp)
 
                 try:
+                    print("Tentando com Node {0}".format(versionPackage))
                     codeInstall = 'ERR'  # if get any err
                     codeTest = 'ERR'
 
-                    # if package.json has version
-                    if not versionPackage.__eq__(' '):
-                        # install all dependencies and test in specify version package
-                        self.npmInstall(pathName, versionPackage)
-                        codeInstall = 'OK'
-                        self.npmTest(pathName, versionPackage)
-                        codeTest = 'OK'
-                    else:
-                        self.npmInstall(pathName, versionDate)
-                        codeInstall = 'OK'
-                        self.npmTest(pathName, versionDate)
-                        codeTest = 'OK'
+                    # install all dependencies and test in specify version package
+                    self.npmInstall(pathName, versionPackage)
+                    codeInstall = 'OK'
+                    self.npmTest(pathName, versionPackage)
+                    codeTest = 'OK'
 
-                except Exception:   # try with latest version of node: 10.7.0
-
+                except Exception:   # try with latest version of node: 10.9.0
+                    print("Tentando com Node {0}".format('10.9.0'))
                     codeInstall = 'ERR'  # if get any err
                     codeTest = 'ERR'
                     self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 
-                    self.npmInstall(pathName, '10.7.0')
+                    self.npmInstall(pathName, '10.9.0')
                     codeInstall = 'OK'
-                    self.npmTest(pathName, '10.7.0')
+                    self.npmTest(pathName, '10.9.0')
                     codeTest = 'OK'
 
             except FileNotFoundError as ex:

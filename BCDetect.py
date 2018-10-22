@@ -98,9 +98,9 @@ class Execute(threading.Thread):
 if len(sys.argv) > 1:
     # vefiry all required programs
     try:
-        #verifyPrograms()
+        verifyPrograms()
 
-        #NodeManager.installAllVersions()
+        NodeManager.installAllVersions()
 
         # one iterator and four threads
         iterator = Iterator(len(sys.argv))

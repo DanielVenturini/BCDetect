@@ -33,8 +33,8 @@ def getVersionOnVersion(version):
     versions.sort()                         # sort the version
 
     for i, lVersion in enumerate(versions): # in each version
-        if lVersion > version and i != 0:   # if latest version is minor than version
-            return versions[i-1]            # return the previous version
+        if lVersion > version:              # if latest version is minor than version
+            return versions[i]              # return the previous version
 
     return versions[-1]                     # return the last version
 
@@ -101,32 +101,25 @@ def getVersionOnPackage(package):
     engines = package.get('engines')        # get the map engines, if exists, or raise KeyError
     version = engines['node']               # get the version of node
 
-    re.search('[\d]+.[\d]+.[\d]+', version).group(0)    # must contains x.y.z
-
-    # if string has versioning
-    if version.find('>') != -1 or version.find('^') != -1 or version.find('=') != -1 or version.find('<'):
-        version = re.search('[\d]+.[\d]+.[\d]+', version).group(0)  # get the version x.y.z
-        version = getVersionOnVersion(version)                      # get last version of this version
+    version = re.search('[\d]+', version).group(0)
+    version = getVersionOnVersion(version)  # get last version of this version
 
     return version
 
 
-# return the version of NodeJs if there is in package.json
-# or, return the version basead in the date
+# return the version of NodeJs if there is in package.json based in date
 # and install the current version of node if version isnt installed
 def getVersion(package, date):
     # first, try to get the version on the package.json
     # after, get based in the date of release
-    versionPackage = ' '
+    version = ' '
     try:
-        versionPackage = getVersionOnPackage(package)
+        version = getVersionOnPackage(package)
 
-        if not isInstalled(versionPackage):
-            installVersion(versionPackage)             # try install
+        if not isInstalled(version):
+            installVersion(version)             # try install
 
     except (KeyError, IndexError, AttributeError):
-        versionPackage = ' '
-    finally:
-        versionDate = getVersionOnDate(date)
+        version = getVersionOnDate(date)
 
-    return versionPackage, versionDate
+    return version
