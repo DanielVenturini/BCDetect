@@ -10,6 +10,8 @@ O BCDetect clona o pacote ```client_name``` do repositorio ```server/path/to/rep
 
 Entao para cada versao do ```client_version```, no ```package.json``` é alterado a versão do  ```dependency_name``` para ```dependency_version_range```. Então é executado o ```npm install``` e apos, o ```npm teste``` para detectar se o pacote 'quebrou' com a atualização.
 
-Os softwares requeridos para o funcionamento do BCDetect são o ```node```, ```npm``` e o ```git```.
+Os softwares requeridos para o funcionamento do BCDetect são o ```node```, ```npm```, o ```git``` e o ```nvm```.
 
-A unica dependencia do pip pode ser instalado usando o seguinte comando: ```python3 -m pip install semantic_version parsimonious``` 
+Utilize a flag ```--node-i``` para verificar e instalar cada versão requerida do NodeJs. Uma vez utilizado esta flag, não há mais a necessidade de utilizar novamente.
+
+Utilize a flag ```--only``` seguido de uma versao ```x.y.z``` para executar apenas para uma versao específica do pacote.
