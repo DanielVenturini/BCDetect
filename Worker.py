@@ -5,8 +5,14 @@ import NodeManager
 
 class Worker():
 
-    def __init__(self, reader):
+    def __init__(self, reader, version):
         self.reader = reader
+        self.onlyVersion = version
+
+        if version.__eq__('-1'):
+            self.oneVersion = False
+        else:
+            self.oneVersion = True
 
     # start work
     def start(self):
@@ -34,7 +40,14 @@ class Worker():
         # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
         keys = list(self.fullCSV.keys())
         keys.sort()                             # sort the keys
+        executed = False                        # if executed only one version
         for version in keys:
+
+            if self.oneVersion and self.onlyVersion.__eq__(version):
+                executed = True
+            elif self.oneVersion:
+                continue                        # search to specify version
+
             release = self.fullCSV[version]     # get the release
 
             try:
@@ -115,6 +128,9 @@ class Worker():
 
             # save result
             writer.write('{0}, {1}, {2}, {3}\n'.format(release.version, version_package, codeInstall, codeTest))
+
+            if executed:        # if the specify version are executed
+                break
 
         writer.close()
         self.deleteCurrentFolder('{0}'.format(client_name))

@@ -58,15 +58,27 @@ class Iterator:
         self.current = 0
         self.max = max
 
-    def getNextPos(self):
+    def getNextPos(self, argv):
 
         self.lock.acquire(blocking=True)
+        current = -1
 
-        self.current += 1
-        if self.current >= self.max:
-            current = -1
-        else:
-            current = self.current
+        while self.current < self.max-1:            # enquanto nao chegar no maximo
+            self.current += 1                       # avança
+
+            if argv[self.current].__eq__('--only'): # if has '--only', jump this flag
+                self.current += 1                   # jump the version too
+                continue                            # go at begin
+
+            if argv[self.current].__eq__('-n'):     # dont verify node
+                continue
+
+            if self.current >= self.max:            # if is end
+                current = -1
+            else:
+                current = self.current              # then, get the position
+
+            break
 
         self.lock.release()
 
@@ -81,16 +93,21 @@ class Execute(threading.Thread):
     def run(self):
         while True:
 
-            pos = self.iterator.getNextPos()
+            pos = self.iterator.getNextPos(sys.argv)
             if pos == -1:
                 return
 
             fileName = sys.argv[pos]+'.csv'
+
+            try:
+                version = sys.argv[sys.argv.index('--only')+1]
+            except ValueError:
+                version = '-1'
+
             try:
                 reader = verifyFile(fileName)
-                Worker(reader).start()
+                Worker(reader, version).start()
             except Exception:
-                print('voltou')
                 continue
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -100,7 +117,8 @@ if len(sys.argv) > 1:
     try:
         verifyPrograms()
 
-        NodeManager.installAllVersions()
+        if sys.argv.__contains__('--node-i'):   # dont verify node
+            NodeManager.installAllVersions()
 
         # one iterator and four threads
         iterator = Iterator(len(sys.argv))
