@@ -5,7 +5,7 @@ import NodeManager
 
 class Worker():
 
-    def __init__(self, reader, version):
+    def __init__(self, reader, version, oneTest):
         self.reader = reader
         self.onlyVersion = version
 
@@ -13,6 +13,8 @@ class Worker():
             self.oneVersion = False
         else:
             self.oneVersion = True
+
+        self.oneTest = oneTest
 
     # start work
     def start(self):
@@ -89,6 +91,9 @@ class Worker():
                     codeTest = 'OK'
 
                 except Exception:   # try with latest version of node: 10.9.0
+                    if self.oneTest:    # if dosent want make install and test twice
+                        raise
+
                     print('------------\n{0}: ERR\n------------\n'.format(operation))
                     print("Tentando com Node {0}".format('10.9.0'))
                     codeInstall = 'ERR'  # if get any err
