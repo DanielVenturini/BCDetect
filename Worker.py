@@ -75,17 +75,21 @@ class Worker():
                 versionPackage = NodeManager.getVersion(package, release.client_timestamp)
 
                 try:
-                    print("Tentando com Node {0}".format(versionPackage))
+                    print("Test with Node {0}".format(versionPackage))
                     codeInstall = 'ERR'  # if get any err
                     codeTest = 'ERR'
 
                     # install all dependencies and test in specify version package
+                    operation = 'INSTALL'
                     self.npmInstall(pathName, versionPackage)
                     codeInstall = 'OK'
+
+                    operation = 'TEST'
                     self.npmTest(pathName, versionPackage)
                     codeTest = 'OK'
 
                 except Exception:   # try with latest version of node: 10.9.0
+                    print('------------\n{0}: ERR\n------------\n'.format(operation))
                     print("Tentando com Node {0}".format('10.9.0'))
                     codeInstall = 'ERR'  # if get any err
                     codeTest = 'ERR'
@@ -98,7 +102,6 @@ class Worker():
 
             except FileNotFoundError as ex:
                 qtdFail += 1
-                print('ERR FNF: ' + str(ex))
                 '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
@@ -106,7 +109,6 @@ class Worker():
                 '''
             except sp.TimeoutExpired as ex:
                 qtdFail += 1
-                print("ERR: " + str(ex))
                 '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
@@ -114,7 +116,7 @@ class Worker():
                 '''
             except Exception as ex:
                 qtdFail += 1
-                print("ERR: " + str(ex))
+                print('------------\n{0}: ERR\n------------\n'.format(operation))
                 '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
@@ -165,7 +167,7 @@ class Worker():
         if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
             raise Exception('Wrong NPM install')
 
-        print('OK')
+        print('------------\nINSTALL OK\n------------\n')
 
 
     # npm test /workspace/path
@@ -174,7 +176,7 @@ class Worker():
         if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error, try with lattest node version
             raise Exception('Wrong NPM test')
 
-        print('OK')
+        print('\n------------\nTEST OK\n------------\n')
 
 
     # download repository
