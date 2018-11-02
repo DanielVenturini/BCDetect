@@ -70,7 +70,10 @@ class Iterator:
                 self.current += 1                   # jump the version too
                 continue                            # go at begin
 
-            if argv[self.current].__eq__('-n'):     # dont verify node
+            if argv[self.current].__eq__('--one-test'): # if has '--one-test', jump this flag
+                continue                                # go at begin
+
+            if argv[self.current].__eq__('--node-i'):# dont verify node
                 continue
 
             if self.current >= self.max:            # if is end
@@ -99,14 +102,22 @@ class Execute(threading.Thread):
 
             fileName = sys.argv[pos]+'.csv'
 
+            # execute the install and test in specify version
             try:
                 version = sys.argv[sys.argv.index('--only')+1]
             except ValueError:
                 version = '-1'
 
+            # if install or test break, then doesnt test again
+            try:
+                sys.argv.index('--one-test')    # if there is no flag, than raise except and set oneTest to False
+                oneTest = True
+            except ValueError:
+                oneTest = False
+
             try:
                 reader = verifyFile(fileName)
-                Worker(reader, version).start()
+                Worker(reader, version, oneTest).start()
             except Exception:
                 continue
 
