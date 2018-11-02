@@ -25,3 +25,5 @@ def sorteador(quantidade):
 		if qtdVersoes > 3 and qtdDepende > 3:
 			qtd += 1
 			csvWriter.write('{0}, {1}, {2}\n'.format(pacote, qtdVersoes, qtdDepende))
+
+sorteador(1)

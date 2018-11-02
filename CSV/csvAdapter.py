@@ -183,56 +183,24 @@ def toNpm():
 		arquivo2.write('\"' + line[:-1] + '\",\"' + str(qtdDependencias) + '\",\"' + str(qtdVersions) + '\",\n')	# "pacote", "qtd_dependencia", "qtdVersions"
 	arquivo2.close()
 
-import csv
-
-def toCSV(package):
-	print("executando para o pacote " + package)
-	csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
-	arquivo2 = open(package+'.csv', 'w')
-	#                   0               2                   4                      10
-	fieldnames = ['client_name', 'client_version', 'client_timestamp', 'client_previous_timestamp',
-	#     14                    15                 18
-	'dependency_name', 'dependency_type', 'dependency_resolved_version']# cabecalho do novo arquivo
-	csvWriter = csv.DictWriter(arquivo2, fieldnames=fieldnames)										# abro como CSV
-	csvWriter.writeheader()																			# escrevo o cabecalho
-	try:
-		while True:
-			#qtdLinha += 1
-			linha = csvReader.__next__()
-
-			if linha[0].__eq__(package):
-				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4], 
-					'client_previous_timestamp': linha[10], 'dependency_name': linha[14], 'dependency_type': linha[15],
-					'dependency_resolved_version': linha[18]})
-
-	except StopIteration:
-		print('terminou para o pacote ' + package)
-		arquivo2.close()
-
-import csv
 import subprocess
-import random
 
-def toJackieChan():
-	qtd = 0
-	linhasSorteadas = []
-	csvWriter = open('pacotessorteados.csv', 'w')
-	csvWriter.write('pacote, qtd_versoes, qtd_dependentes\n')
-	while qtd < 30:									# recupera 30 pacotes
-		csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
-		packageLine = random.randint(0, 31608634)	# sorteia uma linha
-		print('linha sorteada:', packageLine)
-		if linhasSorteadas.count(packageLine):		# se esta linha já foi sorteada
-			continue								# volta ao começo e sorteia novamente
-		linhasSorteadas.append(packageLine)			# adiciona como linha já sorteada
-		line = 1
-		while line < packageLine:					# avança até a linha sorteada
-			csvReader.__next__()
-			line += 1
-		pacote = csvReader.__next__()[0]
-		qtdVersoes = subprocess.getstatusoutput('npm view {0} versions'.format(pacote))[1].count(',')+1
-		qtdDepende = subprocess.getstatusoutput('npm view {0} dependencies'.format(pacote))[1].count(',')+1
-		print('{0}, {1}, {2}'.format(pacote, qtdVersoes, qtdDepende))
-		if qtdVersoes > 3 and qtdDepende > 3:
-			qtd += 1
-			csvWriter.write('{0}, {1}, {2}\n'.format(pacote, qtdVersoes, qtdDepende))
+def versionsCount(packages):
+	for package in packages:
+		resp = subprocess.getstatusoutput('npm view {0} versions'.format(package))[1]
+		qtdVersions = resp.count(',')+1
+		print(package + ': ' + str(qtdVersions))
+
+versions = ('ember-cli-notifications','jasminetea','p-s','athenaeumfirenze','l10ns','quick-sip','suddenly','babelator','gengojs','limby','react-i13n','tilelive-mapnik','calamarcopollo','grid-breakpoint','machinepack-config','reactql','wix-style-react','grimoirejs-gltf','marionettist','resource-container','cypress-release-test','handbrake-js','node-ncbi','rfunc','dat-doctor','idevt','omni-common-ui','rygr')
+versionsCount(versions)
+
+
+b = {'ember-cli-notifications': 54,'jasminetea': 59,'p-s': 52,'athenaeumfirenze': 4,'l10ns': 144,'quick-sip': 14,'suddenly': 69,'babelator': 36,'gengojs': 72,'limby': 149,'react-i13n': 63,'tilelive-mapnik': 39,'calamarcopollo': 135,'grid-breakpoint': 22,'machinepack-config': 8,'reactql': 71,'wix-style-react': 4385,'grimoirejs-gltf': 89,'marionettist': 20,'resource-container': 35,'cypress-release-test': 19,'handbrake-js': 67,'node-ncbi': 12,'rfunc': 72,'dat-doctor': 16,'idevt': 7,'omni-common-ui': 863,'rygr': 21}
+
+lis = list(b.values())
+lis.sort()
+
+for mapp in lis:
+	for key in list(b.keys()):
+		if b[key] == mapp:
+			print("{0}, , , , {1}".format(key, mapp))
