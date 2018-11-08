@@ -17,3 +17,5 @@ Os softwares requeridos para o funcionamento do BCDetect são o ```node```, ```n
 IMPORTANTE: na primeira vez, utilize a flag ```--node-i``` para verificar e instalar cada versão requerida do ```NodeJs```. Uma vez utilizado esta flag, não há mais a necessidade de utilizar novamente.
 
 Utilize a flag ```--only``` seguido de uma versao ```x.y.z``` para executar apenas para uma versao específica do pacote.
+
+Para testes unitários utilizando a flag ```--only```, ou para algum motivo específico, a flag ```--no-del``` pode ser usada para não apagar a pasta clonada do repositório ao findar a execução, e ficara dentro da pasta ```workspace/```, onde foi clonado. Também a flag ```--no-clone``` pode ser usada se o repositório já estiver previamente clonado dentro da pasta ```workspace/```.

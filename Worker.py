@@ -5,16 +5,18 @@ import NodeManager
 
 class Worker():
 
-    def __init__(self, reader, version, oneTest):
-        self.reader = reader
+    def __init__(self, reader, version, oneTest, clone, delete):
         self.onlyVersion = version
+        self.oneTest = oneTest
+        self.delete = delete
+        self.reader = reader
+        self.toClone = clone
 
         if version.__eq__('-1'):
             self.oneVersion = False
         else:
             self.oneVersion = True
 
-        self.oneTest = oneTest
 
     # start work
     def start(self):
@@ -28,9 +30,11 @@ class Worker():
         client_name = self.reader.client_name
         pathName = 'workspace/' + client_name
 
-        sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))  # delete this path - if contain - to dont conflit with git
         sp.getstatusoutput('mkdir workspace/')                          # if this path dont exists, create
-        sp.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
+
+        if self.toClone:
+            sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))  # delete this path - if contain - to dont conflit with git
+            sp.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
 
         # clone repository
         self.clone(self.reader.urlRepo, client_name)
@@ -62,6 +66,10 @@ class Worker():
                 print('    update package.json')
                 # open package.json
                 package = Package(pathName+'/package.json')
+                
+                # if want only print the test script. Comment writer.write too
+                #print(package.get('script')['test'])
+                #'''
 
                 # for each dependencie in release
                 for dependencie in release.dependencies:
@@ -105,6 +113,8 @@ class Worker():
                     self.npmTest(pathName, '10.9.0')
                     codeTest = 'OK'
 
+                # if want only print the test script. Comment writer.write too
+                #'''
             except FileNotFoundError as ex:
                 qtdFail += 1
                 '''
@@ -130,6 +140,7 @@ class Worker():
             else:
                 qtdSucess += 1
 
+            #input()
             # delete folder node_modules and file package.json
             self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 
@@ -140,7 +151,8 @@ class Worker():
                 break
 
         writer.close()
-        self.deleteCurrentFolder('{0}'.format(client_name))
+        if self.delete:
+            self.deleteCurrentFolder('{0}'.format(client_name))
 
         print("Sucess:", qtdSucess)
         print("Fail:", qtdFail)
@@ -186,9 +198,9 @@ class Worker():
 
     # download repository
     def clone(self, urlRepo, client_name):
-        print('Clone: ', end='', flush=True)
+        print('Clone {0} : '.format(urlRepo), end='', flush=True)
         # download source code
-        if(sp.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
+        if(self.toClone and sp.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
             print('ERR')
             raise Exception
 

@@ -76,6 +76,12 @@ class Iterator:
             if argv[self.current].__eq__('--node-i'):# dont verify node
                 continue
 
+            if argv[self.current].__eq__('--no-del'):   # dont delete pathClient when finish
+                continue
+
+            if argv[self.current].__eq__('--no-clone'): # dont clone pathClient, because path is there
+                continue
+
             if self.current >= self.max:            # if is end
                 current = -1
             else:
@@ -87,11 +93,30 @@ class Iterator:
 
         return current
 
+
 class Execute(threading.Thread):
     def __init__(self, iterator):
         threading.Thread.__init__(self)
 
         self.iterator = iterator
+
+    # return True, if flag is given, or False if dont
+    def getFlag(self, flag):
+        try:
+            sys.argv.index(flag)
+
+            # flag with specify value
+            if flag.__eq__('--only'):
+                return sys.argv[sys.argv.index(flag)+1]
+            else:
+                return True
+
+        except ValueError:
+            # flag with specify value
+            if flag.__eq__('--only'):
+                return '-1'
+            else:
+                return False
 
     def run(self):
         while True:
@@ -103,22 +128,22 @@ class Execute(threading.Thread):
             fileName = sys.argv[pos]+'.csv'
 
             # execute the install and test in specify version
-            try:
-                version = sys.argv[sys.argv.index('--only')+1]
-            except ValueError:
-                version = '-1'
+            version = self.getFlag('--only')
 
             # if install or test break, then doesnt test again
-            try:
-                sys.argv.index('--one-test')    # if there is no flag, than raise except and set oneTest to False
-                oneTest = True
-            except ValueError:
-                oneTest = False
+            oneTest = self.getFlag('--one-test')
+
+            # dont clone. The path is there
+            clone = not self.getFlag('--no-clone')
+
+            # dont delete the pathClient when finish
+            delete = not self.getFlag('--no-del')
 
             try:
                 reader = verifyFile(fileName)
-                Worker(reader, version, oneTest).start()
-            except Exception:
+                Worker(reader, version, oneTest, clone, delete).start()
+            except Exception as ex:
+                print("Exception: " + str(ex))
                 continue
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
