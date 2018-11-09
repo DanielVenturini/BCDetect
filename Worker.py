@@ -76,6 +76,7 @@ class Worker():
                 #'''
 
                 # for each dependencie in release
+                release.sort()
                 for dependencie in release.dependencies:
                     # write all dependencies # json.end()
                     print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
@@ -145,7 +146,7 @@ class Worker():
             else:
                 qtdSucess += 1
 
-            # input()
+            input()
             # delete folder node_modules and file package.json
             self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 
