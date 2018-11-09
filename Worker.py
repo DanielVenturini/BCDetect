@@ -56,6 +56,10 @@ class Worker():
 
             release = self.fullCSV[version]     # get the release
 
+            operation = 'INSTALL'
+            codeInstall = 'ERR'  # if get any err
+            codeTest = 'ERR'
+
             try:
                 print('\n==={0}==={1}-{2}==={3}===NodeJs===\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
 
@@ -86,8 +90,6 @@ class Worker():
 
                 try:
                     print("Test with Node {0}".format(versionPackage))
-                    codeInstall = 'ERR'  # if get any err
-                    codeTest = 'ERR'
 
                     # install all dependencies and test in specify version package
                     operation = 'INSTALL'
@@ -108,8 +110,11 @@ class Worker():
                     codeTest = 'ERR'
                     self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 
+                    operation = 'INSTALL'
                     self.npmInstall(pathName, '10.9.0')
                     codeInstall = 'OK'
+
+                    operation = 'TEST'
                     self.npmTest(pathName, '10.9.0')
                     codeTest = 'OK'
 
@@ -140,7 +145,7 @@ class Worker():
             else:
                 qtdSucess += 1
 
-            #input()
+            # input()
             # delete folder node_modules and file package.json
             self.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 
@@ -174,7 +179,7 @@ class Worker():
 
 
     def commitAll(self, client_name, currentDirectory, error=0):
-        sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/*'.format(currentDirectory, client_name))
+        sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/.'.format(currentDirectory, client_name))
         sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -n -m "." {0}/workspace/{1}/'.format(currentDirectory, client_name))
 
 

@@ -30,6 +30,7 @@ def verifyPrograms():
         print("Some required program aren't installed")
         raise
 
+    print()
 
 def verifyFile(file):
     try:
