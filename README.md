@@ -1,6 +1,6 @@
 # BCDetect
 
-Programa para realizar testes em pacotes NPM clonados do GitHub. Dado um arquivo CSV com a seguinte estrutura:
+Programa para instalar dependências e realizar testes em pacotes NPM clonados do GitHub. Dado um arquivo ```.csv``` dentro da pasta ```./CSV/``` com a seguinte estrutura:
 
 ```
 "client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name", "dependency_type", "dependency_version_range", "server/path/to/repo.git"
@@ -14,8 +14,14 @@ Se falhar o ```install``` ou o ```test```, então estas operações são novamen
 
 Os softwares requeridos para o funcionamento do BCDetect são o ```node```, ```npm```, o ```git``` e o ```nvm```.
 
-IMPORTANTE: na primeira vez, utilize a flag ```--node-i``` para verificar e instalar cada versão requerida do ```NodeJs```. Uma vez utilizado esta flag, não há mais a necessidade de utilizar novamente.
+## Flags
 
-Utilize a flag ```--only``` seguido de uma versao ```x.y.z``` para executar apenas para uma versao específica do pacote.
+- ```--node-i``` IMPORTANTE: utilize a flag  para verificar e instalar cada versão requerida do ```NodeJs```. Uma vez utilizado esta flag, não há mais a necessidade de utilizar novamente, pois todas as versões já estarão instaladas.
 
-Para testes unitários utilizando a flag ```--only```, ou para algum motivo específico, a flag ```--no-del``` pode ser usada para não apagar a pasta clonada do repositório ao findar a execução, e ficara dentro da pasta ```workspace/```, onde foi clonado. Também a flag ```--no-clone``` pode ser usada se o repositório já estiver previamente clonado dentro da pasta ```workspace/```.
+- ```--no-del``` evita que o ```BCDetect``` apague o repositório clonado. Por padrão, o repositório que foi clonado em ```./workspace/repo/``` é excluido ao finalizar todas as releases, porém com esta flag, o repositório é mantido.
+
+- ```--no-clone``` evita que o ```BCDetect``` clone o repositório do ```GitHub```. Entretanto, o repositório deve estar previamente clonado na pasta ```./workspace/repo/```.
+
+- ```--only``` seguida de uma versão ```x.y.z``` executa apenas o ```install``` e o ```test``` para a versão específicada do pacote.
+
+As flags podem ser inseridas em qualquer posição dos parâmetros e todas as flags podem ser usadas ao mesmo tempo, entretanto, a flag ```--only``` deve ser seguida da versão ```x.y.z```. Por exemplo: ```python3 BCDetect.py pacote.csv --no-clone --only 2.4.5 --no-del```.

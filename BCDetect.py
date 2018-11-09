@@ -38,8 +38,10 @@ def verifyFile(file):
          "dependency_type", "dependency_resolved_version"], csvFileName=file)
     except FileNotFoundError:   # file not exists
         print("File CSV/" + file + " not found!")
+        raise
     except Exception:           # file dont contains the correct fields -> client_version_num_2, dependency_name
         print("File CSV/" + file + " dont have correct fields")
+        raise
     else:
         print("File CSV/" + file + " is OK")
         return reader
@@ -149,6 +151,23 @@ class Execute(threading.Thread):
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+def printHelp():
+    print('|-----------------------------------------------------------------------|')
+    print('|        BCDetect     -     BREAK CHANGE DETECT    -    B R A S I L     |')
+    print('|-----------------------------------------------------------------------|')
+    print('|USE: python3 BCDetect.py [file1.csv, file2.csv, ...] [flags]           |')
+    print('|-----------------------------------------------------------------------|')
+    print('|Flags:                                                                 |')
+    print('|    --one-test   : if "npm [install | test]" break, don\'t test again.  |')
+    print('|    --no-clone   : if the repo was cloned in CSV/repo, don\'t clone.    |')
+    print('|    --no-del     : don\'t delete CSV/repo when finish.                  |')
+    print('|    --only x.y.z : execute "npm [isntall | test]" only in this version.|')
+    print('|-----------------------------------------------------------------------|')
+
+if sys.argv.__contains__('--help'):
+    printHelp()
+    exit(1)
+
 if len(sys.argv) > 1:
     # vefiry all required programs
     try:
@@ -167,4 +186,4 @@ if len(sys.argv) > 1:
         pass
 
 else:
-    print("ERR: python3 BCDetect.py file1.csv file2.csv ...")
+    print("USE: python3 BCDetect.py [file1.csv, file2.csv, ...] [flags]")
