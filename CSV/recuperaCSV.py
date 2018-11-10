@@ -1,7 +1,8 @@
+import sys
 import csv
 
 def toCSV(package):
-	print("executando para o pacote " + package)
+	print(package + ': ', end='', flush=True)
 	csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
 	arquivo2 = open(package+'.csv', 'w')
 	#                   0               2                   4                      10
@@ -19,5 +20,25 @@ def toCSV(package):
 					'client_previous_timestamp': linha[10], 'dependency_name': linha[14], 'dependency_type': linha[15],
 					'dependency_resolved_version': linha[18]})
 	except StopIteration:
-		print('terminou para o pacote ' + package)
+		print('OK')
 		arquivo2.close()
+
+
+if len(sys.argv) > 1:
+	print(sys.argv[1])
+	listaPacotes = csv.reader(open(sys.argv[1]), delimiter=',', quotechar='\n')
+
+	try:
+
+		# pula o cabeçalho
+		listaPacotes.__next__()
+		while True:
+			# pacote, qtd_versoes, qtd_dependentes
+			linha = listaPacotes.__next__()
+			toCSV(linha[0])
+
+	except StopIteration:
+		pass
+
+else:
+	print('USE: python3 recuperaCSV.py listaPacotes.csv')
