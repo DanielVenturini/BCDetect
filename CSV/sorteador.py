@@ -1,12 +1,54 @@
 import csv
-import subprocess
 import random
+import requests
+
+def getPackage(packageName):
+    return requests.get('https://registry.npmjs.org/'+packageName).json()
+
+def getVersoes(package):
+    try:
+        versoes = list(package['versions'].keys())
+        return len(versoes)
+    except KeyError:
+        return 0
+
+def getScriptTest(package):
+    try:
+        versoes = list(package['versions'].keys())
+        return package['versions'][versoes[-1]]['scripts']['test']
+    except KeyError:
+        return 'no test specified'
+
+def getDependencias(package):
+    try:
+        versoes = list(package['versions'].keys())
+        dependencies = package['versions'][versoes[-1]]['dependencies']
+        return len(list(dependencies.keys()))
+    except KeyError:
+        return 0
+
+def getTest(package):
+    stringTest = getScriptTest(package)
+
+    if stringTest.lower().__contains__('no test specified'):
+        return False
+    elif len(stringTest) < 2:
+        return False
+    else:
+        return True
+
+def getUrl(package):
+    try:
+        versoes = list(package['versions'].keys())
+        return package['versions'][versoes[-1]]['repository']['url']
+    except KeyError:
+        return ' '
 
 def sorteador(quantidade):
 	qtd = 0
 	linhasSorteadas = []
 	csvWriter = open('pacotessorteados.csv', 'w')
-	csvWriter.write('pacote, qtd_versoes, qtd_dependentes\n')
+	csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo\n')
 
 	while qtd < quantidade:							# recupera 30 pacotes
 
@@ -25,14 +67,18 @@ def sorteador(quantidade):
 			line += 1
 
 		pacote = csvReader.__next__()[0]
-		qtdVersoes = subprocess.getstatusoutput('npm view {0} versions'.format(pacote))[1].count(',')+1
-		qtdDepende = subprocess.getstatusoutput('npm view {0} dependencies'.format(pacote))[1].count(',')+1
+		package = getPackage(pacote)
 
-		print('package: {0}; versions: {1}; dependecies: {2}'.format(pacote, qtdVersoes, qtdDepende), end=' - ', flush=True)
-		if qtdVersoes > 4 and qtdDepende > 4:
+		qtdDepende = getDependencias(package)
+        qtdVersoes = getVersoes(package)
+		test = getTest(package)
+        url_repo = getUrl(package)
+
+		print('package: {0}; dependecies: {1}; versions: {2}; test: {3}'.format(pacote, qtdDepende, qtdVersoes, test), end=' - ', flush=True)
+		if test and qtdVersoes > 4 and qtdDepende > 4:
 			qtd += 1
 			print('OK -', qtd)
-			csvWriter.write('{0}, {1}, {2}\n'.format(pacote, qtdVersoes, qtdDepende))
+			csvWriter.write('{0}, {1}, {2}, {3}\n'.format(pacote, qtdVersoes, qtdDepende))
 		else:
 			print('ERR')
 

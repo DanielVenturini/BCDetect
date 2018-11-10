@@ -81,7 +81,7 @@ def verifyTest(package):
     try:
         stringTest = package.get('scripts')['test']
 
-        if stringTest.__contains__('no test specified'):
+        if stringTest.lower().__contains__('no test specified'):
             raise ScriptTestErr(0)
     except KeyError:
         raise ScriptTestErr(1)
