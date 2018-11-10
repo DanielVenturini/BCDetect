@@ -62,20 +62,19 @@ class Worker():
             codeTest = 'ERR'
 
             try:
-                print('\n==={0}==={1}-{2}==={3}===NodeJs===\n'.format(release, release.client_timestamp, release.client_previous_timestamp, client_name))
+                op.printTableInfo('   {0}@{1}   {2}--{3}   '.format(client_name, release, release.client_timestamp, release.client_previous_timestamp))
 
                 op.commitAll(client_name, currentDirectory)
                 # change the repository to specify date
                 op.checkout(pathName, release)
 
-                print('    update package.json')
                 # open package.json
                 package = Package(pathName+'/package.json')
-                
-                # if want only print the test script. Comment writer.write too
-                #print(package.get('script')['test'])
-                #'''
 
+                # verify if package.json has test
+                op.verifyTest(package)
+
+                print('    update package.json')
                 # for each dependencie in release
                 release.sort()
                 for dependencie in release.dependencies:
@@ -120,8 +119,6 @@ class Worker():
                     op.npmTest(pathName, '10.9.0')
                     codeTest = 'OK'
 
-                # if want only print the test script. Comment writer.write too
-                #'''
             except FileNotFoundError as ex:
                 qtdFail += 1
                 '''
@@ -138,7 +135,7 @@ class Worker():
                 '''
             except Exception as ex:
                 qtdFail += 1
-                print('------------\n{0}: ERR\n------------\n'.format(operation))
+                print('------------\n{0}: ERR: {1}\n------------\n'.format(operation, str(ex)))
                 '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
@@ -147,7 +144,7 @@ class Worker():
             else:
                 qtdSucess += 1
 
-            input()
+            #input()
             # delete folder node_modules and file package.json
             op.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 

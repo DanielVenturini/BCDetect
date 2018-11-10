@@ -1,4 +1,16 @@
 import subprocess as sp
+from Except import (ScriptTestErr, InstallErr, TestErr)
+import re
+
+# to print the table formated
+table = {
+    '1': '┌',
+    '2': '┐',
+    '3': '─',
+    '4': '│',
+    '5': '└',
+    '6': '┘',
+}
 
 # change the git tree to specify data
 def checkout(pathName, release):
@@ -16,7 +28,7 @@ def checkout(pathName, release):
     print('OK')
 
 
-def commitAll(client_name, currentDirectory, error=0):
+def commitAll(client_name, currentDirectory):
     sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ add {0}/workspace/{1}/.'.format(currentDirectory, client_name))
     sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -n -m "." {0}/workspace/{1}/'.format(currentDirectory, client_name))
 
@@ -53,3 +65,23 @@ def clone(urlRepo, client_name):
 # only delete the current package folder
 def deleteCurrentFolder(client_name):
     sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))
+
+
+# print the table
+def printTableInfo(line):
+    lenLine = len(line)
+
+    print(table['1'] + table['3']*lenLine + table['2'])
+    print(table['4'] + line + table['4'])
+    print(table['5'] + table['3']*lenLine + table['6'])
+
+# code 1 if package.json hasn't scripts->test
+# code 0 if package.json doesn't specified test: 'echo \"Error: no test specified\" && exit 1'
+def verifyTest(package):
+    try:
+        stringTest = package.get('scripts')['test']
+
+        if stringTest.__contains__('no test specified'):
+            raise ScriptTestErr(0)
+    except KeyError:
+        raise ScriptTestErr(1)
