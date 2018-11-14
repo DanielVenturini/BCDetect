@@ -35,7 +35,7 @@ node_version() {
 # install the specify version $2
 nvm_install() {
     loads_nvm
-    nvm install $1
+    nvm install $1 --force  # if the package has himself as dependencies
 }
 
 # change the version of nvm

@@ -1,5 +1,11 @@
 # -*- coding:ISO-8859-1 -*-
 
+'''
+    This file contains the class that is responsability to open package.json
+    remove all contents in the key dependencies and devDependencies and add
+    all dependencies from csv to dependencies key
+'''
+
 import json
 
 class Package:
@@ -15,18 +21,18 @@ class Package:
         except FileNotFoundError:
             raise
 
+        # delete all dependencies to install only dependencies in csv file
+        self.fileJson['dependencies'] = {}
+        self.fileJson['devDependencies'] = {}
+
+
     # update the value of the specify key
     def update(self, dependency, version, type):
         if not self.fileExists:
             return
 
-        try:
-            if type.__eq__('dependency'):
-                self.fileJson['dependencies'][dependency] = version
-            else:
-                self.fileJson['devDependencies'][dependency] = version
-        except KeyError:
-            print('Key \"dependencies/devDependencies\" or ' + dependency + ' isent in package.json')
+        # dependencies and devDependencies are installed in the dependencies key
+        self.fileJson['dependencies'][dependency] = version
 
 
     # get the value of the key
@@ -40,8 +46,10 @@ class Package:
             print('Key {0} isn\'t in the JSON object.'.format(key))
             raise
 
+
     def print(self):
         print(self.fileJson)
+
 
     # save the current state of json to a file
     def save(self):

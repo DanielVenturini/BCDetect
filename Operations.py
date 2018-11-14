@@ -37,18 +37,20 @@ def commitAll(client_name, currentDirectory):
 def npmInstall(pathName, version):
     print('    npm install: ', end='', flush=True)
     if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
+        printTableInfo('TEST ERR')
         raise Exception('Wrong NPM install')
 
-    print('------------\nINSTALL OK\n------------\n')
+    printTableInfo('INSTALL OK')
 
 
 # npm test /workspace/path
 def npmTest(pathName, version):
     print('    npm test: ', end='', flush=True)
     if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error, try with lattest node version
+        printTableInfo('TEST ERR')
         raise Exception('Wrong NPM test')
 
-    print('\n------------\nTEST OK\n------------\n')
+    printTableInfo('TEST OK')
 
 
 # download repository
@@ -71,6 +73,7 @@ def deleteCurrentFolder(client_name):
 def printTableInfo(line):
     lenLine = len(line)
 
+    print()
     print(table['1'] + table['3']*lenLine + table['2'])
     print(table['4'] + line + table['4'])
     print(table['5'] + table['3']*lenLine + table['6'])
