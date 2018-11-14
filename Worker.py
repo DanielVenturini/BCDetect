@@ -3,6 +3,7 @@ import Operations as op
 import subprocess as sp
 from Package import Package
 import NodeManager
+from Except import (ScriptTestErr, InstallErr, TestErr)
 
 class Worker():
 
@@ -21,7 +22,6 @@ class Worker():
 
     # start work
     def start(self):
-        version_package = ''
         currentDirectory = sp.getstatusoutput('pwd')[1]     # pwd -> /home/user/path/to/BCDetect
 
         self.fullCSV = self.reader.getFull()                # get all versions of csv file
@@ -31,18 +31,16 @@ class Worker():
         client_name = self.reader.client_name
         pathName = 'workspace/' + client_name
 
-        sp.getstatusoutput('mkdir workspace/')                          # if this path dont exists, create
+        sp.getstatusoutput('mkdir workspace/')                          # if this path doesnt exists, create
 
+        # if --no-clone was specified
         if self.toClone:
-            sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))  # delete this path - if contain - to dont conflit with git
-            sp.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
-
             # clone repository
             op.clone(self.reader.urlRepo, client_name)
 
         # file to write
         writer = open('workspace/' + client_name+'_results.csv', 'w')
-        writer.write("version, version_package, install, test\n")
+        writer.write("version, version_package, script_test, install, test, node_on_date, node_sucess\n")
 
         # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
         keys = list(self.fullCSV.keys())
@@ -50,6 +48,7 @@ class Worker():
         executed = False                        # if executed only one version
         for version in keys:
 
+            # if oneVersion was specified, skip anothers versions
             if self.oneVersion and self.onlyVersion.__eq__(version):
                 executed = True
             elif self.oneVersion:
@@ -57,10 +56,21 @@ class Worker():
 
             release = self.fullCSV[version]     # get the release
 
-            operation = 'INSTALL'
-            codeInstall = 'ERR'  # if get any err
-            codeTest = 'ERR'
+            # initializing all info variables
+            operation = 'INSTALL'   # current operation
+            script_test = '-'       # has scripts->test
+            codeInstall = '-'       # if get any err in install
+            codeTest = '-'          # if get any err in test
+            version_package = '-'   # the version of package in package.json
+            node_on_date = '-'      # latest node version in date of release
+            node_sucess = '-'       # node version that test had sucess
 
+            # get the list of node versions and sort decrescent
+            versions = list(NodeManager.nodeVersions.values())
+            versions.sort()
+            versions.reverse()
+
+            posCurrentVersion = versions.index()
             try:
                 op.printTableInfo('   {0}@{1}   {2}--{3}   '.format(client_name, release, release.client_timestamp, release.client_previous_timestamp))
 
@@ -68,23 +78,18 @@ class Worker():
                 # change the repository to specify date
                 op.checkout(pathName, release)
 
+                input()
                 # open package.json
                 package = Package(pathName+'/package.json')
 
                 # verify if package.json has test
                 op.verifyTest(package)
+                script_test = 'OK'
 
                 print('    update package.json')
-                # for each dependencie in release
-                release.sort()
-                for dependencie in release.dependencies:
-                    # write all dependencies # json.end()
-                    print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
-                    package.update(dependencie.name, dependencie.version, dependencie.type)
+                op.updatePackage(release, package)
 
                 version_package = package.get('version')
-                # close package.json
-                package.save()
 
                 # get the latest node version of this release
                 versionPackage = NodeManager.getVersion(package, release.client_timestamp)
@@ -102,6 +107,7 @@ class Worker():
                     codeTest = 'OK'
 
                 except Exception:   # try with latest version of node: 10.9.0
+                    input()
                     if self.oneTest:    # if dosent want make install and test twice
                         raise
 
@@ -119,20 +125,29 @@ class Worker():
                     op.npmTest(pathName, '10.9.0')
                     codeTest = 'OK'
 
-            except FileNotFoundError as ex:
+            except FileNotFoundError as ex: # se não foi possível abrir o package.json
                 qtdFail += 1
                 '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
                 '''
-            except sp.TimeoutExpired as ex:
+            except sp.TimeoutExpired as ex: # se a o teste ou o install demorar mais que 10 minutos
                 qtdFail += 1
                 '''
                 if input().__eq__('OK'):
                     finalCode = 'OK'
                     qtdSucess += 1
                 '''
+            except ScriptTestErr as ex:     # it's exception, but doesn't err, because package.json doesn't have scripts->test or doesn't be specified
+                print('ERR: ' + str(ex).upper())
+
+            except TestErr as ex:     # it's exception, but doesn't err, because package.json doesn't have scripts->test or doesn't be specified
+                print('ERR: ' + str(ex).upper())
+
+            except InstallErr as ex:     # it's exception, but doesn't err, because package.json doesn't have scripts->test or doesn't be specified
+                print('ERR: ' + str(ex).upper())
+
             except Exception as ex:
                 qtdFail += 1
                 print('------------\n{0}: ERR: {1}\n------------\n'.format(operation, str(ex)))
@@ -145,11 +160,13 @@ class Worker():
                 qtdSucess += 1
 
             #input()
-            # delete folder node_modules and file package.json
-            op.deleteCurrentFolder('{0}/node_modules'.format(client_name))
+            # delete folder node_modules
+            if self.delete:
+                op.deleteCurrentFolder('{0}/node_modules'.format(client_name))
 
+            # version, version_package, script_test, install, test, node_on_date, node_sucess
             # save result
-            writer.write('{0}, {1}, {2}, {3}\n'.format(release.version, version_package, codeInstall, codeTest))
+            writer.write('{0}, {1}, {2}, {3}, {4}, {5}, {6}\n'.format(release.version, version_package, script_test, codeInstall, codeTest, node_on_date, node_sucess))
 
             if executed:        # if the specify version are executed
                 break

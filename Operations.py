@@ -55,6 +55,9 @@ def npmTest(pathName, version):
 
 # download repository
 def clone(urlRepo, client_name):
+    sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))  # delete this path - if contain - to dont conflit with git
+    sp.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
+
     print('Clone {0} : '.format(urlRepo), end='', flush=True)
     # download source code
     if(sp.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
@@ -67,6 +70,19 @@ def clone(urlRepo, client_name):
 # only delete the current package folder
 def deleteCurrentFolder(client_name):
     sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))
+
+
+# update all dependencies in package.json
+def updatePackage(release, package):
+    # for each dependencie in release
+    release.sort()
+    for dependencie in release.dependencies:
+        # write all dependencies # json.end()
+        print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
+        package.update(dependencie.name, dependencie.version, dependencie.type)
+
+    # close package.json
+    package.save()
 
 
 # print the table
@@ -84,7 +100,7 @@ def verifyTest(package):
     try:
         stringTest = package.get('scripts')['test']
 
-        if stringTest.lower().__contains__('no test specified'):
+        if stringTest.lower().__contains__('no test specified') or stringTest.__eq__(''):
             raise ScriptTestErr(0)
     except KeyError:
         raise ScriptTestErr(1)
