@@ -1,14 +1,20 @@
 import sys
 import csv
 
-def toCSV(package):
+'''
+	Script para recuperar do csv todas as ocorrências de um determinado pacote.
+	Pode ser usado como 'python3 recuperaCSV.py pacotessorteados.csv' após ter usado o script de sortear
+	Ou pode ser usado como 'python3 recuperaCSV.py --package package1 package2 ...'
+'''
+
+def toCSV(package, url_repo=''):
 	print(package + ': ', end='', flush=True)
 	csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
 	arquivo2 = open(package+'.csv', 'w')
 	#                   0               2                   4                      10
 	fieldnames = ['client_name', 'client_version', 'client_timestamp', 'client_previous_timestamp',
 	#     14                    15                 18
-	'dependency_name', 'dependency_type', 'dependency_resolved_version']# cabecalho do novo arquivo
+	'dependency_name', 'dependency_type', 'dependency_resolved_version', url_repo]# cabecalho do novo arquivo
 	csvWriter = csv.DictWriter(arquivo2, fieldnames=fieldnames)										# abro como CSV
 	csvWriter.writeheader()																			# escrevo o cabecalho
 	try:
@@ -23,22 +29,32 @@ def toCSV(package):
 		print('OK')
 		arquivo2.close()
 
-
 if len(sys.argv) > 1:
-	print(sys.argv[1])
-	listaPacotes = csv.reader(open(sys.argv[1]), delimiter=',', quotechar='\n')
+	# se os pacotes forem passados direto do terminal
+	if sys.argv.__contains__('--package'):
 
-	try:
+		for i in range(1, len(sys.argv)):
+			if(sys.argv[i].__eq__('--package')):
+				continue
 
-		# pula o cabeçalho
-		listaPacotes.__next__()
-		while True:
-			# pacote, qtd_versoes, qtd_dependentes
-			linha = listaPacotes.__next__()
-			toCSV(linha[0])
+			toCSV(sys.argv[i])
 
-	except StopIteration:
-		pass
+	else:	# senão, recupera de um arquivo
+		print(sys.argv[1])
+
+		listaPacotes = csv.reader(open(sys.argv[1]), delimiter=',', quotechar='\n')
+
+		try:
+
+			# pula o cabeçalho
+			listaPacotes.__next__()
+			while True:
+				# pacote, qtd_versoes, qtd_dependentes, url_repo
+				linha = listaPacotes.__next__()
+				toCSV(linha[0], linha[3])
+
+		except StopIteration:
+			pass
 
 else:
-	print('USE: python3 recuperaCSV.py listaPacotes.csv')
+	print('USE: python3 recuperaCSV.py pacotessorteados.csv')
