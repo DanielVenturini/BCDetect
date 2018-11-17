@@ -1,4 +1,5 @@
 import re
+import sys
 import csv
 import random
 import requests
@@ -86,14 +87,20 @@ def sorteador(quantidade):
         test = getTest(package)
         url_repo = getUrl(package)
 
-        print('package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo), end=' - ', flush=True)
+        print('{5} - {6} - package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, qtd+1, quantidade), end=' - ', flush=True)
         if url_repo and test and qtdVersoes > 4 and qtdDepende > 4:
             qtd += 1
-            print('OK -', qtd)
+            print('OK')
             csvWriter.write('{0}, {1}, {2}, {3}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo))
         else:
             print('ERR')
 
     file.close()
 
-sorteador(1)
+try:
+    if len(sys.argv) > 1 and len(sys.argv) < 3:
+        sorteador(int(sys.argv[1]))
+    else:
+        print("USE: python3 sorteador.py qtd_para_sortear")
+except:
+    print("USE: python3 sorteador.py qtd_para_sortear")
