@@ -3,7 +3,7 @@
 Programa para instalar dependências e realizar testes em pacotes NPM clonados do GitHub. Dado um arquivo ```.csv``` dentro da pasta ```./CSV/``` com a seguinte estrutura:
 
 ```
-"client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name", "dependency_type", "dependency_version_range", "server/path/to/repo.git"
+"client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name", "dependency_type", "dependency_version_range", "dependency_resolved_version_change", "server/path/to/repo.git"
 ```
 
 O BCDetect clona o pacote ```client_name``` do repositorio ```server/path/to/repo.git```. Então usa o comando ```git checkout `git rev-list -1 --before="client_timestamp" --after="client_previous_timestamp" master` ``` para restaurar a árvore de arquivos nesse intervalo de tempo especificado, que deve ser uma release.

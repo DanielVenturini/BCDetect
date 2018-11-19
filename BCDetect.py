@@ -35,7 +35,7 @@ def verifyPrograms():
 def verifyFile(file):
     try:
         reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name",
-         "dependency_type", "dependency_resolved_version"], csvFileName=file)
+         "dependency_type", "dependency_resolved_version", "dependency_resolved_version_change"], csvFileName=file)
     except FileNotFoundError:   # file not exists
         print("File CSV/" + file + " not found!")
         raise
