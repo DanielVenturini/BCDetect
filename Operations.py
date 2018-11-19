@@ -17,7 +17,7 @@ def checkout(pathName, release):
     print('    checkout: ', end='', flush=True)
     client_timestamp = release.client_timestamp
     client_previous_timestamp = release.client_previous_timestamp
-
+    print('cd {0}/ && git checkout `git rev-list -1 --before="{1}" --after="{2}" master`'.format(pathName, client_timestamp, client_previous_timestamp))
     if client_previous_timestamp.__eq__(''):
         if sp.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" master`'.format(pathName, client_timestamp))[0] != 0:
             raise Exception('Wrong checkout')
@@ -79,7 +79,7 @@ def updatePackage(release, package):
     for dependencie in release.dependencies:
         # write all dependencies # json.end()
         print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
-        package.update(dependencie.name, dependencie.version, dependencie.type)
+        package.update(dependencie.name, dependencie.version)
 
     # close package.json
     package.save()
@@ -93,6 +93,7 @@ def printTableInfo(line):
     print(table['1'] + table['3']*lenLine + table['2'])
     print(table['4'] + line + table['4'])
     print(table['5'] + table['3']*lenLine + table['6'])
+
 
 # code 1 if package.json hasn't scripts->test
 # code 0 if package.json doesn't specified test: 'echo \"Error: no test specified\" && exit 1'

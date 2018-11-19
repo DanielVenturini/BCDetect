@@ -50,6 +50,9 @@ class Reader():
                 elif(pos == len(mainRow)-1):        # last position
                     raise Exception('NoFieldsFound')# if not found the field, raise exception
 
+        # if lattest field hasnt repo url
+        if mainRow[-1].__eq__('dependency_resolved_version_change'):
+            raise Exception('NoFieldsFound')
 
     # get the nexts values for each field
     # raise StopIteration when dont has more lines
@@ -85,11 +88,11 @@ class Reader():
 
         try:
             while True:
-                client_name, client_version, client_timestamp, client_previous_timestamp, dependency_name, dependency_type, dependency_resolved_version = self.next()
+                client_name, client_version, client_timestamp, client_previous_timestamp, dependency_name, dependency_type, dependency_resolved_version, dependency_resolved_version_change = self.next()
 
                 self.client_name = client_name
                 # name, version, type
-                dependency = Dependency(dependency_name, dependency_resolved_version, dependency_type)
+                dependency = Dependency(dependency_name, dependency_resolved_version, dependency_type, dependency_resolved_version_change)
 
                 try:
                     # release.addDependency

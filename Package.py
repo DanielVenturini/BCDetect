@@ -27,7 +27,7 @@ class Package:
 
 
     # update the value of the specify key
-    def update(self, dependency, version, type):
+    def update(self, dependency, version):
         if not self.fileExists:
             return
 

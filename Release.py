@@ -34,9 +34,11 @@ class Release:
         return self.dependencies
 
     def __str__(self):
-        '''print('-------------------{0}--------------------'.format(self.version))
-        for dependency in self.dependencies:
-            print(dependency)
-
-        return('-------------------{0}--------------------'.format(self.version))'''
         return self.version
+
+    # if any dependency is changed to 'upgrade' or add, then need to install and test
+    def verifyDependencyChange(self):
+
+        for dependency in self.dependencies:
+            if dependency.changed():
+                return True
