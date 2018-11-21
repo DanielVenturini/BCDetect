@@ -3,6 +3,8 @@ This class represents a release.
 The release has a version and some clients
 '''
 
+from Except import NoDependencyChange
+
 class Release:
 
     def __init__(self, version, client_timestamp, client_previous_timestamp):
@@ -41,4 +43,6 @@ class Release:
 
         for dependency in self.dependencies:
             if dependency.changed():
-                return True
+                return
+
+        raise NoDependencyChange()

@@ -17,7 +17,7 @@ def checkout(pathName, release):
     print('    checkout: ', end='', flush=True)
     client_timestamp = release.client_timestamp
     client_previous_timestamp = release.client_previous_timestamp
-    print('cd {0}/ && git checkout `git rev-list -1 --before="{1}" --after="{2}" master`'.format(pathName, client_timestamp, client_previous_timestamp))
+
     if client_previous_timestamp.__eq__(''):
         if sp.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" master`'.format(pathName, client_timestamp))[0] != 0:
             raise Exception('Wrong checkout')

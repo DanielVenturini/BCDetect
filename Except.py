@@ -2,7 +2,7 @@
 
 class MyGenericErr(Exception):
 
-	def __init__(self, code):
+	def __init__(self, code=-1):
 		self.code = code
 
 	@property
@@ -32,3 +32,8 @@ class ScriptTestErr(MyGenericErr):
 			return 'script test hasn\'t key test'
 		else:
 			return 'script test hasn\'t specify test'
+
+class NoDependencyChange(MyGenericErr):
+
+	def __str__(self):
+		return 'None dependency has changed ' + str(self.code)
