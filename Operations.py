@@ -38,7 +38,7 @@ def npmInstall(pathName, version):
     print('    npm install: ', end='', flush=True)
     if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
         printTableInfo('TEST ERR')
-        raise Exception('Wrong NPM install')
+        raise InstallErr(0)
 
     printTableInfo('INSTALL OK')
 
@@ -48,7 +48,7 @@ def npmTest(pathName, version):
     print('    npm test: ', end='', flush=True)
     if sp.run(['bash', 'nvm.sh', 'npm', 'test', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:  # if has error, try with lattest node version
         printTableInfo('TEST ERR')
-        raise Exception('Wrong NPM test')
+        raise TestErr('Wrong NPM test')
 
     printTableInfo('TEST OK')
 
