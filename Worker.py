@@ -216,15 +216,3 @@ class Worker():
 
         print("Versoes que vai rodar " + str(versions))
         return versions
-
-
-
-from Reader import Reader
-file = 'quantum.csv'
-reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name","dependency_type", "dependency_resolved_version", "dependency_resolved_version_change"], csvFileName=file)
-fullCSV = reader.getFull()
-keys = list(fullCSV.keys())
-version = keys[0]
-release = fullCSV[version]
-# reader, version, oneTest, clone, delete
-Worker(reader, '-1', False, True, False).start()
