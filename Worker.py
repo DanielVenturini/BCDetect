@@ -40,7 +40,7 @@ class Worker():
 
         # file to write
         writer = open('workspace/' + self.client_name+'_results.csv', 'w')
-        writer.write("version, dependency_changed, script_test, install, test, node_on_date, node_sucess\n")
+        writer.write("version,dependency_changed,script_test,install,test,node_on_date,node_sucess\n")
 
         # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
         keys = list(self.fullCSV.keys())
@@ -71,43 +71,48 @@ class Worker():
             # change the repository to specify date
             op.checkout(self.pathName, self.release)
 
-            # get the list of node versions and sort decrescent
-            package = Package(self.pathName+'/package.json')
-            versions = self.getListVersions(values, package)
+            try:
+                # get the list of node versions and sort decrescent
+                package = Package(self.pathName+'/package.json')
+                versions = self.getListVersions(values, package)
 
-            # for each version of node before the release date
-            for version_node in versions:
-                try:
+                # for each version of node before the release date
+                for version_node in versions:
+                    try:
 
-                    self.execute(version_node, package, values)
-                    values['node_sucess'] = version_node
+                        self.execute(version_node, package, values)
+                        values['node_sucess'] = version_node
 
-                except NoDependencyChange as ex:    # don't wrong
-                    print('EXC: ' + str(ex).upper())
-                    values['dependency_changed'] = 'NO'
-                    break
+                    except NoDependencyChange as ex:    # don't wrong
+                        print('EXC: ' + str(ex).upper())
+                        values['dependency_changed'] = 'NO'
+                        break
 
-                except ScriptTestErr as ex:         # don't wrong
-                    values['script_test'] = 'ERR'
-                    print('EXC: ' + str(ex).upper())
-                    break
+                    except ScriptTestErr as ex:         # don't wrong
+                        values['script_test'] = 'ERR'
+                        print('EXC: ' + str(ex).upper())
+                        break
 
-                except InstallErr as ex:            # npm install wrong
-                    values['codeInstall'] = 'ERR'
-                    print('ERR: ' + str(ex).upper())
-                    # continue to next node version
+                    except InstallErr as ex:            # npm install wrong
+                        values['codeInstall'] = 'ERR'
+                        op.deleteCurrentFolder('{0}/node_modules'.format(self.client_name))
+                        print('ERR: ' + str(ex).upper())
+                        # continue to next node version
 
-                except TestErr as ex:               # npm test wrong
-                    values['codeTest'] = 'ERR'
-                    print('ERR: ' + str(ex).upper())
-                    # continue to next node version
+                    except TestErr as ex:               # npm test wrong
+                        values['codeTest'] = 'ERR'
+                        print('ERR: ' + str(ex).upper())
+                        # continue to next node version
 
-                except Exception as ex:
-                    print("Algum erro inesperado::::::::::::::::::::: " + str(ex))
+                    except Exception as ex:
+                        print("Algum erro inesperado::::::::::::::::::::: " + str(ex))
 
-                else:
-                    qtdSucess += 1          # update the count
-                    break                   # quit of for statement
+                    else:
+                        qtdSucess += 1          # update the count
+                        break                   # quit of for statement
+
+            except FileNotFoundError:
+                pass    # do something
 
             #input()
             # delete folder node_modules
@@ -116,7 +121,7 @@ class Worker():
 
             # version, dependency_changed, script_test, install, test, node_on_date, node_sucess
             # save result
-            writer.write('{0}, {1}, {2}, {3}, {4}, {5}, {6}\n'.format(self.release.version, values['dependency_changed'], values['script_test'], values['codeInstall'], values['codeTest'], values['node_on_date'], values['node_sucess']))
+            writer.write('{0},{1},{2},{3},{4},{5},{6}\n'.format(self.release.version, values['dependency_changed'], values['script_test'], values['codeInstall'], values['codeTest'], values['node_on_date'], values['node_sucess']))
 
             if executed:        # if the specify version are executed
                 break
@@ -132,13 +137,12 @@ class Worker():
     # check test, install and test with the specify node version
     def execute(self, version_node, package, values):
         try:
+            op.printTableInfo('   {0}@{1}   {2}--{3}   NodeJs-{4}   '.format(self.client_name, self.release, self.release.client_timestamp, self.release.client_previous_timestamp, version_node))
 
             # verify if any dependency has changed
             operation = 'DEP-CHANGE'
             self.release.verifyDependencyChange()
             values['dependency_changed'] = 'YES'
-
-            op.printTableInfo('   {0}@{1}   {2}--{3}   NodeJs-{4}   '.format(self.client_name, self.release, self.release.client_timestamp, self.release.client_previous_timestamp, version_node))
 
             operation = 'COMMIT'
             op.commitAll(self.client_name, self.currentDirectory)
@@ -146,6 +150,7 @@ class Worker():
             operation = 'CHECKOUT'
             op.checkout(self.pathName, self.release)
 
+            op.deleteCurrentFolder('{0}/package-lock.json'.format(self.client_name))
             #input()
 
             # verify if package.json has test
@@ -205,17 +210,21 @@ class Worker():
         except KeyError:
             pass    # do nothing
 
+        # try with the lattest
+        if not versions.__contains__('10.12.0'):
+            versions.append('10.12.0')
+
         print("Versoes que vai rodar " + str(versions))
         return versions
 
 
 
 from Reader import Reader
-file = 'bubleupventurini.csv'
+file = 'quantum.csv'
 reader = Reader(["client_name", "client_version", "client_timestamp", "client_previous_timestamp", "dependency_name","dependency_type", "dependency_resolved_version", "dependency_resolved_version_change"], csvFileName=file)
 fullCSV = reader.getFull()
 keys = list(fullCSV.keys())
 version = keys[0]
 release = fullCSV[version]
 # reader, version, oneTest, clone, delete
-Worker(reader, '-1', False, False, False).start()
+Worker(reader, '-1', False, True, False).start()

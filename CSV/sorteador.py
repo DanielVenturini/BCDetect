@@ -42,7 +42,7 @@ def getTest(package):
 def resolvUrl(url):
     try:
         if url.__contains__('github'):
-            return 'https://github.com/' + re.search('[\/|:][\w]+\/[\w]+', url).group(0)[1:]
+            return 'https://github.com/' + re.search('[\/|:](\w|-|_|@|:)+\/(\w|-|_|@)+', url).group(0)[1:]
         else:
             return url
     except:
@@ -51,56 +51,65 @@ def resolvUrl(url):
 def getUrl(package):
     try:
         versoes = list(package['versions'].keys())
+        versoes.sort()
         url = package['versions'][versoes[-1]]['repository']['url']
         return resolvUrl(url)
     except KeyError:
-        return False
+        return 'https://github.com/danielventurini/false'
+
+def verifyExistsRepo(url_repo):
+    return requests.get(url_repo).ok
 
 def sorteador(quantidade):
     qtd = 0
     linhasSorteadas = []
-    file = open('pacotessorteados.csv', 'w')
+    file = open('pacotessorteados.csv', 'a')
     csvWriter = file
     csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo\n')
 
-    while qtd < quantidade:							# recupera 30 pacotes
+    try:
+        while qtd < quantidade:							# recupera 30 pacotes
 
-        csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
-        packageLine = random.randint(0, 31608634)	# sorteia uma linha
+            csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
+            packageLine = random.randint(0, 31608634)	# sorteia uma linha
 
-        print('linha sorteada:', packageLine)
-        if linhasSorteadas.count(packageLine):		# se esta linha já foi sorteada
-            continue								# volta ao começo e sorteia novamente
+            print('linha sorteada:', packageLine)
+            if linhasSorteadas.count(packageLine):		# se esta linha já foi sorteada
+                continue								# volta ao começo e sorteia novamente
 
-        linhasSorteadas.append(packageLine)			# adiciona como linha já sorteada
-        line = 1
+            linhasSorteadas.append(packageLine)			# adiciona como linha já sorteada
+            line = 1
 
-        while line < packageLine:					# avança até a linha sorteada
-            csvReader.__next__()
-            line += 1
+            while line < packageLine:					# avança até a linha sorteada
+                csvReader.__next__()
+                line += 1
 
-        pacote = csvReader.__next__()[0]
-        package = getPackage(pacote)
+            pacote = csvReader.__next__()[0]
+            package = getPackage(pacote)
 
-        qtdDepende = getDependencias(package)
-        qtdVersoes = getVersoes(package)
-        test = getTest(package)
-        url_repo = getUrl(package)
+            qtdDepende = getDependencias(package)
+            qtdVersoes = getVersoes(package)
+            test = getTest(package)
+            url_repo = getUrl(package)
+            repo_exists = verifyExistsRepo(url_repo)
 
-        print('{5} - {6} - package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, qtd+1, quantidade), end=' - ', flush=True)
-        if url_repo and test and qtdVersoes > 4 and qtdDepende > 4:
-            qtd += 1
-            print('OK')
-            csvWriter.write('{0}, {1}, {2}, {3}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo))
-        else:
-            print('ERR')
+            print('{5} - {6} - package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {7}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, qtd+1, quantidade, repo_exists), end=' - ', flush=True)
+            if url_repo and test and qtdVersoes > 4 and qtdDepende > 4:
+                qtd += 1
+                print('OK')
+                csvWriter.write('{0}, {1}, {2}, {3}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo))
+            else:
+                print('ERR')
 
-    file.close()
+    except Exception as ex:
+        print('Err: ' + str(ex))
+    finally:
+        csvWriter.close()
 
 try:
     if len(sys.argv) > 1 and len(sys.argv) < 3:
         sorteador(int(sys.argv[1]))
     else:
         print("USE: python3 sorteador.py qtd_para_sortear")
-except:
-    print("USE: python3 sorteador.py qtd_para_sortear")
+except Exception as ex:
+    print("USE: python3 sorteador.py qtd_para_sortear: " + str(ex))
