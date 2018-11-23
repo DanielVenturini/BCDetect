@@ -167,7 +167,9 @@ class Worker():
 
             # install all dependencies and test in specify version package
             operation = 'INSTALL'
-            op.npmInstall(self.pathName, version_node)
+            if not values['codeInstall'].__eq__('OK'):
+                op.npmInstall(self.pathName, version_node)
+
             values['codeInstall'] = 'OK'
 
             operation = 'TEST'
@@ -212,7 +214,7 @@ class Worker():
 
         # try with the lattest
         if not versions.__contains__('10.12.0'):
-            versions.append('10.12.0')
+            versions.insert(0, '10.12.0')
 
         print("Versoes que vai rodar " + str(versions))
         return versions
