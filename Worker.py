@@ -100,6 +100,7 @@ class Worker():
                         # continue to next node version
 
                     except TestErr as ex:               # npm test wrong
+                        values['node_sucess'] = version_node    # version which install has sucess
                         values['codeTest'] = 'ERR'
                         print('ERR: ' + str(ex).upper())
                         # continue to next node version

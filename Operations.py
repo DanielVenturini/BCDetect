@@ -37,7 +37,7 @@ def commitAll(client_name, currentDirectory):
 def npmInstall(pathName, version):
     print('    npm install: ', end='', flush=True)
     if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
-        printTableInfo('TEST ERR')
+        printTableInfo('INSTALL ERR')
         raise InstallErr(0)
 
     printTableInfo('INSTALL OK')
