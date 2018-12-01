@@ -142,7 +142,7 @@ class Worker():
 
             # verify if any dependency has changed
             operation = 'DEP-CHANGE'
-            self.release.verifyDependencyChange()
+            self.release.verifyDependencyChange(self.oneVersion)
             values['dependency_changed'] = 'YES'
 
             operation = 'COMMIT'
@@ -217,5 +217,5 @@ class Worker():
         if not versions.__contains__('10.12.0'):
             versions.insert(0, '10.12.0')
 
-        print("Versoes que vai rodar " + str(versions))
+        op.printTableInfo('NodeJS versions to run in {0}: {1}'.format(self.client_name, str(versions)))
         return versions

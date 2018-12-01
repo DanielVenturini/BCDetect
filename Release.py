@@ -39,8 +39,12 @@ class Release:
         return self.version
 
     # if any dependency is changed to 'upgrade' or add, then need to install and test
-    def verifyDependencyChange(self):
+    def verifyDependencyChange(self, onlyVersion):
 
+        # force install and test even if hasnt change
+        if onlyVersion:
+            return
+            
         for dependency in self.dependencies:
             if dependency.changed():
                 return
