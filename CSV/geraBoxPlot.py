@@ -67,30 +67,35 @@ def getUrl(package):
 def verifyExistsRepo(url_repo):
     return requests.get(url_repo).ok
 
-def sorteador(quantidade):
-    qtd = 0
-    pacotesSorteados = []
-    file = open('pacotessorteados.csv', 'a')
-    csvWriter = file
-    #csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo\n')
+def salvaInformacoes(dependencias, releases):
+    file = open('dataBoxPlot.js', 'w')
+
+    file.write('var data = echarts.dataTool.prepareBoxplotData([\n    [')
+    virgula = ','
+    for i, value in enumerate(dependencias):
+        if i == dependencias.__len__()-1:
+            virgula = ''
+
+        file.write('{0}{1}'.format(str(value), virgula))
+
+    file.write('],\n    [')
+    virgula = ','
+    for i, value in enumerate(releases):
+        if i == releases.__len__()-1:
+            virgula = ''
+
+        file.write('{0}{1}'.format(str(value), virgula))
+
+    file.write(']\n]);')
+
+
+def geraBoxPlot(arquivo):
+    csvReader = csv.reader(open(arquivo), delimiter=',', quotechar='\n')
+    dependencias = []
+    releases = []
 
     try:
-        while qtd < quantidade:							# recupera 30 pacotes
-
-            csvReader = csv.reader(open('todos_pacotes.csv', 'r'), delimiter=',', quotechar='\n')
-            packageLine = random.randint(0, 366629)	    # sorteia uma linha 31608634 ou 366629
-
-            print('linha sorteada:', packageLine)
-            if pacotesSorteados.__contains__(packageLine):  # se o pacote já foi sorteado
-                continue								    # volta ao começo e sorteia novamente
-
-            pacotesSorteados.append(packageLine)		# adiciona como pacote já sorteado
-            line = 1
-
-            while line < packageLine:					# avança até a linha sorteada
-                csvReader.__next__()
-                line += 1
-
+        while True:
             pacote = csvReader.__next__()[0]
             package = getPackage(pacote)
 
@@ -100,23 +105,23 @@ def sorteador(quantidade):
             url_repo = getUrl(package)
             repo_exists = verifyExistsRepo(url_repo)
 
-            print('{5} - {6} - package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {7}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, qtd+1, quantidade, repo_exists), end=' - ', flush=True)
+            print('package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {5}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, repo_exists), end=' - ', flush=True)
             if url_repo and test and repo_exists:
-                qtd += 1
+                dependencias.append(qtdDepende)
+                releases.append(qtdVersoes)
                 print('OK')
-                csvWriter.write('{0}, {1}, {2}, {3}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo))
             else:
                 print('ERR')
 
     except Exception as ex:
         print('Err: ' + str(ex))
-    finally:
-        csvWriter.close()
+
+    salvaInformacoes(dependencias, releases)
 
 try:
     if len(sys.argv) > 1 and len(sys.argv) < 3:
-        sorteador(int(sys.argv[1]))
+        geraBoxPlot(sys.argv[1])
     else:
-        print("USE: python3 sorteador.py qtd_para_sortear")
+        print("USE: python3 sorteador.py todos_pacotes.csv")
 except Exception as ex:
-    print("USE: python3 sorteador.py qtd_para_sortear: " + str(ex))
+    print("USE: python3 sorteador.py todos_pacotes.csv: " + str(ex))
