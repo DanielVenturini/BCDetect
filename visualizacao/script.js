@@ -1,10 +1,5 @@
 var myChart = echarts.init(document.getElementById('view'));
 
-var data = echarts.dataTool.prepareBoxplotData([
-    [850, 740, 900, 1070, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
-    [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
-]);
-
 var eixoX = ['Releases', 'Dependências'];
 
 option = {
