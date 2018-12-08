@@ -1,5 +1,6 @@
 import sys
 import csv
+from multiprocessing import Process
 
 '''
 	Script para recuperar do csv todas as ocorrências de um determinado pacote.
@@ -48,13 +49,30 @@ if len(sys.argv) > 1:
 
 			# pula o cabeçalho
 			listaPacotes.__next__()
+			# processos que irão executar: 6 processos paralelos
+			NUM_PROCESS = 6
+			process = list(range(0, NUM_PROCESS))
 			while True:
-				# pacote, qtd_versoes, qtd_dependentes, url_repo
-				linha = listaPacotes.__next__()
-				toCSV(linha[0], linha[3])
+				for i in range(0, NUM_PROCESS):
+					# pacote, qtd_versoes, qtd_dependentes, url_repo
+					linha = listaPacotes.__next__()
+					process[i] = Process(target=toCSV, args=(linha[0], linha[3]))
+					process[i].start()
+					#toCSV(linha[0], linha[3])
+
+				# aguarda todos os processos
+				for i in range(0, NUM_PROCESS):
+					process[i].join()
 
 		except StopIteration:
 			pass
 
+		try:
+			# aguarda todos os processos restantes
+			for i in range(0, NUM_PROCESS):
+				process[i].join()
+
+		except AttributeError:
+			pass
 else:
 	print('USE: python3 recuperaCSV.py pacotessorteados.csv')

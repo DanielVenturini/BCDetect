@@ -1,11 +1,18 @@
 import re
 import sys
 import csv
+import json
 import random
 import requests
 
-def getPackage(packageName):
-    return requests.get('https://registry.npmjs.org/'+packageName).json()
+def getPackage(packageName, current=False):
+    if current:
+        return requests.get('https://registry.npmjs.org/'+packageName).json()
+
+    try:
+        return json.load(open('./package.json/npm_packs_2017-06-01/{0}.json'.format(packageName)))
+    except FileNotFoundError:
+        return {error: "Not found"}
 
 def getVersoes(package):
     try:
@@ -62,22 +69,23 @@ def verifyExistsRepo(url_repo):
 
 def sorteador(quantidade):
     qtd = 0
-    linhasSorteadas = []
+    pacotesSorteados = []
     file = open('pacotessorteados.csv', 'a')
     csvWriter = file
-    csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo\n')
+    #csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo\n')
 
     try:
         while qtd < quantidade:							# recupera 30 pacotes
 
             csvReader = csv.reader(open('npmdep.csv', 'r'), delimiter=',', quotechar='\n')
-            packageLine = random.randint(0, 31608634)	# sorteia uma linha
+            packageLine = random.randint(0, 366629)	    # sorteia uma linha 31608634 ou 366629
 
             print('linha sorteada:', packageLine)
-            if linhasSorteadas.count(packageLine):		# se esta linha já foi sorteada
-                continue								# volta ao começo e sorteia novamente
+            if pacotesSorteados.__contains__(packageLine):  # se o pacote já foi sorteado
+                print('já sorteador')
+                continue								    # volta ao começo e sorteia novamente
 
-            linhasSorteadas.append(packageLine)			# adiciona como linha já sorteada
+            pacotesSorteados.append(packageLine)		# adiciona como pacote já sorteado
             line = 1
 
             while line < packageLine:					# avança até a linha sorteada
