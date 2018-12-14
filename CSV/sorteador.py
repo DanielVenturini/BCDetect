@@ -10,30 +10,48 @@ def getPackage(packageName, current=False):
         return requests.get('https://registry.npmjs.org/'+packageName).json()
 
     try:
-        return json.load(open('./packagejson/npm_packs_2017-06-01/{0}.json'.format(packageName)))
+        package = json.load(open('./packagejson/npm_packs_2017-06-01/{0}.json'.format(packageName)))
+        setLatest(package)
+        return package
     except FileNotFoundError:
-        return {error: "Not found"}
+        return {'error': "Not found"}
+
+def setLatest(package):
+
+    try:
+        versions = list(package['versions'].keys())
+        versions.sort()
+        latest = package['dist-tags']['latest']
+
+        for version in versions:
+            specifyPackage = package['versions'][version]
+            if specifyPackage['version'].__eq__(latest):
+                package['latest'] = specifyPackage
+                return
+
+        package['latest'] = package['versions'][versions[-1]]
+    except:
+        versoes = list(package['versions'].keys())
+        package['latest'] = package['versions'][versoes[-1]]
+
 
 def getVersoes(package):
     try:
         versoes = list(package['versions'].keys())
         return len(versoes)
-    except KeyError:
+    except:
         return 0
 
 def getScriptTest(package):
     try:
-        versoes = list(package['versions'].keys())
-        return package['versions'][versoes[-1]]['scripts']['test']
-    except KeyError:
+        return package['latest']['scripts']['test']
+    except:
         return 'no test specified'
 
 def getDependencias(package):
     try:
-        versoes = list(package['versions'].keys())
-        dependencies = package['versions'][versoes[-1]]['dependencies']
-        return len(list(dependencies.keys()))
-    except KeyError:
+        return len(list(package['latest']['dependencies'].keys()))
+    except:
         return 0
 
 def getTest(package):
@@ -51,28 +69,26 @@ def resolvUrl(url):
         if url.__contains__('github'):
             return 'https://github.com/' + re.search('[\/|:](\w|-|_|@|:)+\/(\w|-|_|@)+', url).group(0)[1:]
         else:
-            return url
+            return 'https://github.com/danielventurini/false'
     except:
-        return url
+        return 'https://github.com/danielventurini/false'
 
 def getUrl(package):
     try:
-        versoes = list(package['versions'].keys())
-        versoes.sort()
-        url = package['versions'][versoes[-1]]['repository']['url']
+        url = package['latest']['repository']['url']
         return resolvUrl(url)
-    except KeyError:
+    except:
         return 'https://github.com/danielventurini/false'
 
 def verifyExistsRepo(url_repo):
-    return requests.get(url_repo).ok
+    return requests.head(url_repo).ok
 
 def sorteador(quantidade):
     qtd = 0
     pacotesSorteados = []
-    file = open('pacotessorteados.csv', 'a')
+    file = open('pacotessorteados.csv', 'w')
     csvWriter = file
-    #csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo\n')
+    csvWriter.write('pacote, qtd_versoes, qtd_dependentes, url_repo, had_test, repo_exist\n')
 
     try:
         while qtd < quantidade:							# recupera 30 pacotes
@@ -101,10 +117,10 @@ def sorteador(quantidade):
             repo_exists = verifyExistsRepo(url_repo)
 
             print('{5} - {6} - package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {7}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, qtd+1, quantidade, repo_exists), end=' - ', flush=True)
-            if url_repo and test and repo_exists:
+            csvWriter.write('{0}, {1}, {2}, {3}, {4}, {5}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo, test, repo_exists))
+            if qtdDepende >= 1 url_repo and test and repo_exists:
                 qtd += 1
                 print('OK')
-                csvWriter.write('{0}, {1}, {2}, {3}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo))
             else:
                 print('ERR')
 
