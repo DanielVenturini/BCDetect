@@ -118,7 +118,7 @@ def sorteador(quantidade):
 
             print('{5} - {6} - package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {7}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, qtd+1, quantidade, repo_exists), end=' - ', flush=True)
             csvWriter.write('{0}, {1}, {2}, {3}, {4}, {5}\n'.format(pacote, qtdVersoes, qtdDepende, url_repo, test, repo_exists))
-            if qtdDepende >= 1 url_repo and test and repo_exists:
+            if qtdDepende >= 1 and url_repo and test and repo_exists:
                 qtd += 1
                 print('OK')
             else:
