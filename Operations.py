@@ -33,6 +33,15 @@ def commitAll(client_name, currentDirectory):
     sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ commit -n -m "." {0}/workspace/{1}/'.format(currentDirectory, client_name))
 
 
+# reset any files unconmmited
+def cleanAndReset(client_name, currentDirectory):
+    sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ clean -fd'.format(currentDirectory, client_name))
+    sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ clean -fX'.format(currentDirectory, client_name))
+    sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ clean -fx'.format(currentDirectory, client_name))
+
+    sp.getstatusoutput('git --git-dir={0}/workspace/{1}/.git/ --work-tree={0}/workspace/{1}/ reset --hard'.format(currentDirectory, client_name))
+
+
 # npm install
 def npmInstall(pathName, version):
     print('    npm install: ', end='', flush=True)

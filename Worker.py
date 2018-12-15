@@ -57,17 +57,18 @@ class Worker():
             self.release = self.fullCSV[version]# get the release
 
             # initializing all info variables
+            # ERR is the default value
             values = {
-                'script_test': '-',       # has scripts->test
-                'codeInstall': '-',       # if get any err in install
-                'codeTest': '-',          # if get any err in test
-                'node_on_date': '-',      # latest node version in date of release
-                'node_sucess': '-',       # node version that test had sucess
-                'dependency_changed': '-'# if none dependency has changed from the latest release
+                'script_test': 'ERR',       # has scripts->test
+                'codeInstall': 'ERR',       # if get any err in install
+                'codeTest': 'ERR',          # if get any err in test
+                'node_on_date': 'ERR',      # latest node version in date of release
+                'node_sucess': 'ERR',       # node version that test had sucess
+                'dependency_changed': 'ERR'	# if none dependency has changed from the latest release
             }
 
             # checkout before get package
-            op.commitAll(self.client_name, self.currentDirectory)
+            op.cleanAndReset(self.client_name, self.currentDirectory)
             # change the repository to specify date
             op.checkout(self.pathName, self.release)
 
@@ -145,8 +146,11 @@ class Worker():
             self.release.verifyDependencyChange(self.oneVersion)
             values['dependency_changed'] = 'YES'
 
-            operation = 'COMMIT'
-            op.commitAll(self.client_name, self.currentDirectory)
+            #operation = 'COMMIT'
+            #op.commitAll(self.client_name, self.currentDirectory)
+            operation = 'RESET'
+            op.cleanAndReset(self.client_name, self.currentDirectory)
+
             # change the repository to specify date
             operation = 'CHECKOUT'
             op.checkout(self.pathName, self.release)
