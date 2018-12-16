@@ -214,7 +214,7 @@ class Worker():
             if not versions.__contains__(versionEngines):
                 versions.insert(0, versionEngines)
 
-        except KeyError:
+        except (KeyError, AttributeError):
             pass    # do nothing
 
         # try with the lattest

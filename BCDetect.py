@@ -164,7 +164,7 @@ def printHelp():
     print('|    --only x.y.z : execute "npm [isntall | test]" only in this version.|')
     print('|-----------------------------------------------------------------------|')
 
-if sys.argv.__contains__('--help'):
+if sys.argv.__contains__('--help') or sys.argv.__contains__('-h'):
     printHelp()
     exit(1)
 
