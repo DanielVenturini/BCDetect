@@ -39,14 +39,14 @@ option = {
             show: false
         },
         axisLabel: {
-            formatter: 'expr {value}'
+            formatter: 'Releases'
         },
         splitLine: {
             show: false
         }
     },
     yAxis: {
-        type: 'value',
+        type: 'log',
         name: 'km/s minus 299,000',
         splitArea: {
             show: true
