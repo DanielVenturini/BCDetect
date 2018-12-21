@@ -101,7 +101,6 @@ class Worker():
                         # continue to next node version
 
                     except TestErr as ex:               # npm test wrong
-                        values['node_sucess'] = version_node    # version which install has sucess
                         values['codeTest'] = 'ERR'
                         print('ERR: ' + str(ex).upper())
                         # continue to next node version
@@ -174,6 +173,7 @@ class Worker():
             operation = 'INSTALL'
             if not values['codeInstall'].__eq__('OK'):
                 op.npmInstall(self.pathName, version_node)
+                values['node_sucess'] = version_node    # version which install has sucess
 
             values['codeInstall'] = 'OK'
 
