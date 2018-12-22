@@ -105,6 +105,9 @@ class Worker():
                         print('ERR: ' + str(ex).upper())
                         # continue to next node version
 
+                    except sp.TimeoutExpired:
+                        break
+
                     except Exception as ex:
                         print("Algum erro inesperado::::::::::::::::::::: " + str(ex))
 
