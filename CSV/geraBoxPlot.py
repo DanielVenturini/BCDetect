@@ -150,6 +150,6 @@ try:
     if len(sys.argv) > 1 and len(sys.argv) < 3:
         geraBoxPlot(sys.argv[1])
     else:
-        print("USE: python3 sorteador.py todos_pacotes.csv")
+        print("USE: python3 geraBoxPlot.py todos_pacotes.csv")
 except Exception as ex:
     pass
