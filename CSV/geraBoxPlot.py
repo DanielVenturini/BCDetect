@@ -1,6 +1,7 @@
 import re
 import sys
 import csv
+import time
 import json
 import random
 import requests
@@ -82,6 +83,12 @@ def getUrl(package):
         return 'https://github.com/danielventurini/false'
 
 def verifyExistsRepo(url_repo):
+    # avoid request in false repository
+    if url_repo.__eq__('https://github.com/danielventurini/false'):
+        return False
+
+    # avoid DoS in github
+    time.sleep(1)
     return requests.head(url_repo).ok
 
 def salvaInformacoes(dependencias, releases):
@@ -108,6 +115,7 @@ def salvaInformacoes(dependencias, releases):
 
 def geraBoxPlot(arquivo):
     csvReader = csv.reader(open(arquivo), delimiter=',', quotechar='\n')
+    csvReader.__next__()    # ignorando a primeira linha
     dependencias = []
     releases = []
 
@@ -126,7 +134,7 @@ def geraBoxPlot(arquivo):
             #repo_exists = verifyExistsRepo(url_repo)
 
             print('package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {5}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, repo_exists), end=' - ', flush=True)
-            if url_repo and test and repo_exists:
+            if qtdDepende >= 1 and url_repo and test and repo_exists:
                 dependencias.append(qtdDepende)
                 releases.append(qtdVersoes)
                 print('OK')
