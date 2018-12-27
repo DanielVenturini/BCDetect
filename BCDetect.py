@@ -73,9 +73,6 @@ class Iterator:
                 self.current += 1                   # jump the version too
                 continue                            # go at begin
 
-            if argv[self.current].__eq__('--one-test'): # if has '--one-test', jump this flag
-                continue                                # go at begin
-
             if argv[self.current].__eq__('--node-i'):# dont verify node
                 continue
 
@@ -133,9 +130,6 @@ class Execute(threading.Thread):
             # execute the install and test in specify version
             version = self.getFlag('--only')
 
-            # if install or test break, then doesnt test again
-            oneTest = self.getFlag('--one-test')
-
             # dont clone. The path is there
             clone = not self.getFlag('--no-clone')
 
@@ -144,7 +138,7 @@ class Execute(threading.Thread):
 
             try:
                 reader = verifyFile(fileName)
-                Worker(reader, version, oneTest, clone, delete).start()
+                Worker(reader, version, clone, delete).start()
             except Exception as ex:
                 print("Exception: " + str(ex))
                 continue
@@ -158,10 +152,10 @@ def printHelp():
     print('|USE: python3 BCDetect.py [file1.csv, file2.csv, ...] [flags]           |')
     print('|-----------------------------------------------------------------------|')
     print('|Flags:                                                                 |')
-    print('|    --one-test   : if "npm [install | test]" break, don\'t test again.  |')
+    print('|    --node-i     : install all major versions of NodeJS.               |')
     print('|    --no-clone   : if the repo was cloned in CSV/repo, don\'t clone.    |')
     print('|    --no-del     : don\'t delete CSV/repo when finish.                  |')
-    print('|    --only x.y.z : execute "npm [isntall | test]" only in this version.|')
+    print('|    --only x.y.z : execute "npm [install | test]" only in this version.|')
     print('|-----------------------------------------------------------------------|')
 
 if sys.argv.__contains__('--help') or sys.argv.__contains__('-h'):
@@ -171,10 +165,11 @@ if sys.argv.__contains__('--help') or sys.argv.__contains__('-h'):
 if len(sys.argv) > 1:
     # vefiry all required programs
     try:
-        verifyPrograms()
 
         if sys.argv.__contains__('--node-i'):   # dont verify node
             NodeManager.installAllVersions()
+
+        verifyPrograms()
 
         # one iterator and four threads
         iterator = Iterator(len(sys.argv))

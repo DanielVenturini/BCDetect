@@ -7,9 +7,8 @@ from Except import (ScriptTestErr, InstallErr, TestErr, NoDependencyChange)
 
 class Worker():
 
-    def __init__(self, reader, version, oneTest, clone, delete):
+    def __init__(self, reader, version, clone, delete):
         self.onlyVersion = version
-        self.oneTest = oneTest
         self.delete = delete
         self.reader = reader
         self.toClone = clone
@@ -64,7 +63,7 @@ class Worker():
                 'codeTest': 'ERR',          # if get any err in test
                 'node_on_date': 'ERR',      # latest node version in date of release
                 'node_sucess': 'ERR',       # node version that test had sucess
-                'dependency_changed': 'ERR'	# if none dependency has changed from the latest release
+                'dependency_changed': 'YES' # if none dependency has changed from the latest release
             }
 
             # checkout before get package
@@ -217,7 +216,7 @@ class Worker():
             if not versions.__contains__(versionEngines):
                 versions.insert(0, versionEngines)
 
-        except (KeyError, AttributeError):
+        except (KeyError, AttributeError, TypeError):
             pass    # do nothing
 
         # try with the lattest
