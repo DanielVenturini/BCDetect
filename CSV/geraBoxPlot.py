@@ -129,7 +129,6 @@ def geraBoxPlot(arquivo):
             test = getTest(package)
             url_repo = getUrl(package)
 
-            print('package: {0}; dependecies: {1}; versions: {2}; test: {3}; url: {4}; exists: {5}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, repo_exists), end=' - ', flush=True)
             resp = 'ERR'
             if qtdDepende >= 1 and url_repo and test:
                 if verifyExistsRepo(url_repo):
@@ -137,7 +136,8 @@ def geraBoxPlot(arquivo):
                     releases.append(qtdVersoes)
                     resp = 'OK'
 
-            print(resp)
+            #print('{0}; deps: {1}; versions: {2}; test: {3}; url: {4}; exists: {5}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, resp))
+            print('{0}-{1}'.format(qtdDepende, qtdVersoes))
 
     except Exception as ex:
         print('Err: ' + str(ex))
