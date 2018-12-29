@@ -18,26 +18,30 @@ def toCSV(package, url_repo=''):
 	'dependency_name', 'dependency_type', 'dependency_resolved_version', 'dependency_resolved_version_change', url_repo]# cabecalho do novo arquivo
 	csvWriter = csv.DictWriter(arquivo2, fieldnames=fieldnames)										# abro como CSV
 	csvWriter.writeheader()																			# escrevo o cabecalho
+	encontrou = False
+
 	try:
 		while True:
 			#qtdLinha += 1
 			linha = csvReader.__next__()
 			if linha[0].__eq__(package):
+				encontrou = True
 				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4], 
 					'client_previous_timestamp': linha[10], 'dependency_name': linha[14], 'dependency_type': linha[15],
 					'dependency_resolved_version': linha[18], 'dependency_resolved_version_change': linha[28]})
+
+			if encontrou:
+				raise StopIteration
+
 	except StopIteration:
 		print('OK')
 		arquivo2.close()
 
 if len(sys.argv) > 1:
 	# se os pacotes forem passados direto do terminal
-	if sys.argv.__contains__('--package'):
+	if sys.argv.__contains__('--packages'):
 
-		for i in range(1, len(sys.argv)):
-			if(sys.argv[i].__eq__('--package')):
-				continue
-
+		for i in range(2, len(sys.argv)):
 			toCSV(sys.argv[i])
 
 	else:	# senão, recupera de um arquivo
