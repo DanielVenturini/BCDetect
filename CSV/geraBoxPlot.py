@@ -55,13 +55,16 @@ def getDependencias(package):
         return 0
 
 def getTest(package):
-    stringTest = getScriptTest(package)
+    try:
+        stringTest = getScriptTest(package)
 
-    if stringTest.lower().__contains__('no test specified'):
-        return False
-    elif len(stringTest) < 2:
-        return False
-    else:
+        if stringTest.lower().__contains__('no test specified'):
+            return False
+        elif len(stringTest) < 2:
+            return False
+        else:
+            return True
+    except:
         return True
 
 def resolvUrl(url):
@@ -134,10 +137,10 @@ def geraBoxPlot(arquivo):
                 if verifyExistsRepo(url_repo):
                     dependencias.append(qtdDepende)
                     releases.append(qtdVersoes)
+                    print('{0}-{1}'.format(qtdDepende, qtdVersoes))
                     resp = 'OK'
 
             #print('{0}; deps: {1}; versions: {2}; test: {3}; url: {4}; exists: {5}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, resp))
-            print('{0}-{1}'.format(qtdDepende, qtdVersoes))
 
     except Exception as ex:
         print('Err: ' + str(ex))
