@@ -29,6 +29,7 @@ def toCSV(package, url_repo=''):
 				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4], 
 					'client_previous_timestamp': linha[10], 'dependency_name': linha[14], 'dependency_type': linha[15],
 					'dependency_resolved_version': linha[18], 'dependency_resolved_version_change': linha[28]})
+				continue
 
 			if encontrou:
 				raise StopIteration
