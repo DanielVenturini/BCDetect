@@ -82,6 +82,16 @@ class Iterator:
             if argv[self.current].__eq__('--no-clone'): # dont clone pathClient, because path is there
                 continue
 
+            if argv[self.current].__eq__('--j-check'):  # just does a checkout in a repo
+                continue
+
+            if argv[self.current].__eq__('--j-check-p'):# just does a checkout in a repo and change the package.json
+                continue
+
+            if argv[self.current].startswith('--'):     # another flag, that does know
+                print('**`FLAG UNKNOKW: `{0}` **'.format(argv[self.current]))
+                continue
+
             if self.current >= self.max:            # if is end
                 current = -1
             else:
@@ -135,6 +145,12 @@ class Execute(threading.Thread):
 
             # dont delete the pathClient when finish
             delete = not self.getFlag('--no-del')
+
+            # just does a checkout, without install and test
+            checkout = self.getFlag('--j-check')
+
+            # just does a checkout and change a package.json
+            checkout_p = self.getFlag('--j-check-p')
 
             try:
                 reader = verifyFile(fileName)
