@@ -43,7 +43,10 @@ def cleanAndReset(client_name, currentDirectory):
 
 
 # npm install
-def npmInstall(pathName, version):
+def npmInstall(pathName, version, client_name):
+    deleteCurrentFolder('{0}/node_modules'.format(client_name))
+    deleteCurrentFolder('{0}/package-lock.json'.format(client_name))
+
     print('    npm install: ', end='', flush=True)
     if sp.run(['bash', 'nvm.sh', 'npm', 'install', './{0}'.format(pathName), '{0}'.format(version)], timeout=(10*60)).returncode != 0:       # if has error
         printTableInfo('INSTALL ERR')

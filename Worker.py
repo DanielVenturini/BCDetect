@@ -95,7 +95,6 @@ class Worker():
 
                     except InstallErr as ex:            # npm install wrong
                         values['codeInstall'] = 'ERR'
-                        op.deleteCurrentFolder('{0}/node_modules'.format(self.client_name))
                         print('ERR: ' + str(ex).upper())
                         # continue to next node version
 
@@ -156,7 +155,6 @@ class Worker():
             operation = 'CHECKOUT'
             op.checkout(self.pathName, self.release)
 
-            op.deleteCurrentFolder('{0}/package-lock.json'.format(self.client_name))
             #input()
 
             # verify if package.json has test
@@ -174,7 +172,7 @@ class Worker():
             # install all dependencies and test in specify version package
             operation = 'INSTALL'
             if not values['codeInstall'].__eq__('OK'):
-                op.npmInstall(self.pathName, version_node)
+                op.npmInstall(self.pathName, version_node, self.client_name)
                 values['node_sucess'] = version_node    # version which install has sucess
 
             values['codeInstall'] = 'OK'
