@@ -132,8 +132,13 @@ class Worker():
         if self.delete:
             op.deleteCurrentFolder('{0}'.format(self.client_name))
 
-        print("Sucess:", qtdSucess)
-        print("Fail:", qtdFail)
+        if self.oneVersion and not executed:
+            print()
+            print('** VERSAO {0} NAO ENCONTRADA **'.format(self.onlyVersion))
+            print()
+        else:
+            print("Sucess:", qtdSucess)
+            print("Fail:", qtdFail)
 
 
     # check test, install and test with the specify node version
