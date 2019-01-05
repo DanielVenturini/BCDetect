@@ -1,7 +1,5 @@
 var myChart = echarts.init(document.getElementById('view'));
 
-var eixoX = ['Releases', 'Dependências'];
-
 option = {
     title: [
         {
@@ -39,7 +37,18 @@ option = {
             show: false
         },
         axisLabel: {
-            formatter: 'Releases'
+            //formatter: 'expr {value}'
+            formatter: (value) => {
+                switch(value) {
+                    case '0':
+                    case '2':
+                        return 'dependências'
+
+                    case '1':
+                    case '3':
+                        return 'releases'
+                }
+            }
         },
         splitLine: {
             show: false
@@ -47,7 +56,7 @@ option = {
     },
     yAxis: {
         type: 'log',
-        name: 'km/s minus 299,000',
+        name: 'qtd',
         splitArea: {
             show: true
         }
