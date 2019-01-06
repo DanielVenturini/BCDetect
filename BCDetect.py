@@ -154,7 +154,7 @@ class Execute(threading.Thread):
 
             try:
                 reader = verifyFile(fileName)
-                Worker(reader, version, clone, delete).start()
+                Worker(reader, version, clone, delete, checkout, checkout_p).start()
             except Exception as ex:
                 print("Exception: " + str(ex))
                 continue
@@ -172,6 +172,8 @@ def printHelp():
     print('|    --no-clone   : if the repo was cloned in CSV/repo, don\'t clone.    |')
     print('|    --no-del     : don\'t delete CSV/repo when finish.                  |')
     print('|    --only x.y.z : execute "npm [install | test]" only in this version.|')
+    print('|    --j-check    : just does a checkout in a specify `--only x.y.z´   .|')
+    print('|    --j-check-p  : same behavior as --j-check, but update package.json.|')
     print('|-----------------------------------------------------------------------|')
 
 if sys.argv.__contains__('--help') or sys.argv.__contains__('-h'):

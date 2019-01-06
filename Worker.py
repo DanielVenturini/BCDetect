@@ -7,11 +7,13 @@ from Except import (ScriptTestErr, InstallErr, TestErr, NoDependencyChange)
 
 class Worker():
 
-    def __init__(self, reader, version, clone, delete):
+    def __init__(self, reader, version, clone, delete, checkout, checkout_p):
         self.onlyVersion = version
         self.delete = delete
         self.reader = reader
         self.toClone = clone
+        self.checkout = checkout
+        self.checkout_p = checkout_p
 
         if version.__eq__('-1'):
             self.oneVersion = False
@@ -71,10 +73,19 @@ class Worker():
             # change the repository to specify date
             op.checkout(self.pathName, self.release)
 
+            if self.checkout:
+                exit(0)
+
             try:
                 # get the list of node versions and sort decrescent
                 package = Package(self.pathName+'/package.json')
                 versions = self.getListVersions(values, package)
+
+                if self.checkout_p:
+                    print('    update package.json')
+                    operation = 'UPDATE-PACKAGE'
+                    op.updatePackage(self.release, package)
+                    exit(0)
 
                 # for each version of node before the release date
                 for version_node in versions:
