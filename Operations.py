@@ -85,7 +85,7 @@ def deleteCurrentFolder(client_name):
 
 
 # update all dependencies in package.json
-def updatePackage(release, package):
+def updatePackage(release, package, pathName):
     # for each dependencie in release
     release.sort()
     for dependencie in release.dependencies:
@@ -95,6 +95,7 @@ def updatePackage(release, package):
 
     # close package.json
     package.save()
+    getHEAD(pathName)
 
 
 # print the table
@@ -117,3 +118,7 @@ def verifyTest(package):
             raise ScriptTestErr(0)
     except KeyError:
         raise ScriptTestErr(1)
+
+
+def getHEAD(pathName):
+    printTableInfo(sp.getstatusoutput('cat {0}/.git/HEAD'.format(pathName))[1])

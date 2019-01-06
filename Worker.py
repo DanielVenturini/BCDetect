@@ -74,6 +74,7 @@ class Worker():
             op.checkout(self.pathName, self.release)
 
             if self.checkout:
+                op.getHEAD(self.pathName)
                 exit(0)
 
             try:
@@ -84,7 +85,7 @@ class Worker():
                 if self.checkout_p:
                     print('    update package.json')
                     operation = 'UPDATE-PACKAGE'
-                    op.updatePackage(self.release, package)
+                    op.updatePackage(self.release, package, self.pathName)
                     exit(0)
 
                 # for each version of node before the release date
@@ -180,7 +181,7 @@ class Worker():
 
             print('    update package.json')
             operation = 'UPDATE-PACKAGE'
-            op.updatePackage(self.release, package)
+            op.updatePackage(self.release, package, self.pathName)
 
             # close package.json and save changes
             package.save()
