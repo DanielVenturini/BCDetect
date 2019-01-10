@@ -131,7 +131,7 @@ def formatDate(release):
         seconds, mili = seconds.split('.')
 
         date = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes), int(seconds), int(mili[:-1]))
-        return date.strftime('%d %b %Y')
+        return date.strftime('%b %d %Y')
     except:
         return ''
 
