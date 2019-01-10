@@ -74,7 +74,7 @@ class Worker():
             op.checkout(self.pathName, self.release)
 
             if self.checkout:
-                op.getHEAD(self.pathName)
+                op.getHEAD(self.pathName, self.release)
                 exit(0)
 
             try:
@@ -146,7 +146,7 @@ class Worker():
 
         if self.oneVersion and not executed:
             print()
-            print('** VERSAO {0} NAO ENCONTRADA **'.format(self.onlyVersion))
+            print('** VERSION {0} NOT FOUND **'.format(self.onlyVersion))
             print()
         else:
             print("Sucess:", qtdSucess)

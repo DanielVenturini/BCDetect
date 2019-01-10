@@ -1,5 +1,6 @@
 import subprocess as sp
 from Except import (ScriptTestErr, InstallErr, TestErr)
+import datetime
 import re
 
 # to print the table formated
@@ -72,7 +73,7 @@ def clone(urlRepo, client_name):
 
     print('Clone {0} : '.format(urlRepo), end='', flush=True)
     # download source code
-    if(sp.getstatusoutput('git clone ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
+    if(sp.getstatusoutput('git clone --recurse-submodules ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
         print('ERR')
         raise Exception
 
@@ -95,7 +96,7 @@ def updatePackage(release, package, pathName):
 
     # close package.json
     package.save()
-    getHEAD(pathName)
+    getHEAD(pathName, release)
 
 
 # print the table
@@ -120,5 +121,20 @@ def verifyTest(package):
         raise ScriptTestErr(1)
 
 
-def getHEAD(pathName):
-    printTableInfo(sp.getstatusoutput('cat {0}/.git/HEAD'.format(pathName))[1])
+def formatDate(release):
+    try:
+        client_timestamp = release.client_timestamp
+
+        date, time = client_timestamp.split('T')
+        year, month, day = date.split('-')
+        hour, minutes, seconds = time.split(':')
+        seconds, mili = seconds.split('.')
+
+        date = datetime.datetime(int(year), int(month), int(day), int(hour), int(minutes), int(seconds), int(mili[:-1]))
+        return date.strftime('%d %b %Y')
+    except:
+        return ''
+
+
+def getHEAD(pathName, release):
+    printTableInfo(sp.getstatusoutput('cat {0}/.git/HEAD'.format(pathName))[1] + ' - ' + formatDate(release))
