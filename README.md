@@ -24,4 +24,8 @@ Os softwares requeridos para o funcionamento do BCDetect são o ```node```, ```n
 
 - ```--only``` seguida de uma versão ```x.y.z``` executa apenas o ```install``` e o ```test``` para a versão específicada do pacote.
 
+- ```--j-check``` apenas realiza o ```checkout``` na versão especificada na flag ```--only``` e nada mais. Não realiza o ```install``` nem o ```test```.
+
+- ```--j-check-p``` realiza a mesma operação que a flag ```--j-check```, porém atualiza o ```package.json``` com as dependências. Também, não realiza o ```install``` nem o ```test```.
+
 As flags podem ser inseridas em qualquer posição dos parâmetros e todas as flags podem ser usadas ao mesmo tempo, entretanto, a flag ```--only``` deve ser seguida da versão ```x.y.z```. Por exemplo: ```python3 BCDetect.py pacote.csv --no-clone --only 2.4.5 --no-del```.
