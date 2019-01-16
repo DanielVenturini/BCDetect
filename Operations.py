@@ -94,6 +94,7 @@ def updatePackage(release, package, pathName):
         print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
         package.update(dependencie.name, dependencie.version)
 
+    package.fileJson['date'] = release.client_timestamp
     # close package.json
     package.save()
     getHEAD(pathName, release)
@@ -111,7 +112,11 @@ def printTableInfo(line):
 
 # code 1 if package.json hasn't scripts->test
 # code 0 if package.json doesn't specified test: 'echo \"Error: no test specified\" && exit 1'
-def verifyTest(package):
+def verifyTest(package, onlyVersion):
+    # force install and test
+    if onlyVersion:
+        return
+
     try:
         stringTest = package.get('scripts')['test']
 
@@ -137,4 +142,4 @@ def formatDate(release):
 
 
 def getHEAD(pathName, release):
-    printTableInfo(sp.getstatusoutput('cat {0}/.git/HEAD'.format(pathName))[1] + ' - ' + formatDate(release))
+    printTableInfo(sp.getstatusoutput('cat {0}/.git/HEAD'.format(pathName))[1] + ' - ' + formatDate(release) + ' - ' + release.client_timestamp)

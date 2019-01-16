@@ -176,7 +176,7 @@ class Worker():
 
             # verify if package.json has test
             operation = 'VERIFY-TEST'
-            op.verifyTest(package)
+            op.verifyTest(package, self.onlyVersion)
             values['script_test'] = 'OK'
 
             print('    update package.json')
