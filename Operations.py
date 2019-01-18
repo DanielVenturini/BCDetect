@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import subprocess as sp
 from Except import (ScriptTestErr, InstallErr, TestErr)
 import datetime
@@ -91,7 +92,14 @@ def updatePackage(release, package, pathName):
     release.sort()
     for dependencie in release.dependencies:
         # write all dependencies # json.end()
-        print('        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type))
+        if dependencie.changed():
+            color = Fore.RED
+            #print('npm uninstall {0}'.format(dependencie.name))
+            #print('npm install {0}@{1}'.format(dependencie.name, dependencie.version))
+        else:
+            color = Fore.GREEN
+
+        print(color + '        {0}@{1}-{2}'.format(dependencie.name, dependencie.version, dependencie.type) + Style.RESET_ALL)
         package.update(dependencie.name, dependencie.version)
 
     package.fileJson['date'] = release.client_timestamp
