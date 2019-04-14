@@ -1,6 +1,7 @@
 import sys
 import csv
 from multiprocessing import Process
+import threading
 
 '''
 	Script para recuperar do csv todas as ocorrências de um determinado pacote.
@@ -57,13 +58,19 @@ if len(sys.argv) > 1:
 			# processos que irão executar: 6 processos paralelos
 			NUM_PROCESS = 6
 			process = list(range(0, NUM_PROCESS))
+			# cria um lock para recuperar do arquivo
+			lock = threading.Lock()
 			while True:
 				for i in range(0, NUM_PROCESS):
 					# pacote, qtd_versoes, qtd_dependentes, url_repo
+
+					# access shared state
+					lock.acquire(blocking=True)
 					linha = listaPacotes.__next__()
+					lock.release()
+
 					process[i] = Process(target=toCSV, args=(linha[0], linha[3]))
 					process[i].start()
-					#toCSV(linha[0], linha[3])
 
 				# aguarda todos os processos
 				for i in range(0, NUM_PROCESS):
