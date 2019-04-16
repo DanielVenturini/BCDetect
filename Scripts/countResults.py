@@ -2,7 +2,7 @@ import csv
 import json
 
 def get_line(package, qtd_versions, qtd_depends, qtd_sucess, qtd_err, link):
-	return package + ',' + qtd_version + ',' + qtd_depends + ',' + qtd_sucess + ',' + qtd_err + ',' + link
+	return package + ',' + str(qtd_versions) + ',' + str(qtd_depends) + ',' + str(qtd_sucess) + ',' + qtd_err + ',' + link
 
 def count_results(packageName):
 	try:
@@ -14,23 +14,14 @@ def count_results(packageName):
 
 	try:
 		file.__next__() # jump the header
-		qtd_versions = 0
-		qtd_depends = 0
-		'''while True:
-			linha = csvReader.__next__()
-			if linha[0].__eq__(package):
-				encontrou = True
-				csvWriter.writerow({'client_name': linha[0], 'client_version': linha[2], 'client_timestamp': linha[4], 
-					'client_previous_timestamp': linha[10], 'dependency_name': linha[14], 'dependency_type': linha[15],
-					'dependency_resolved_version': linha[18], 'dependency_resolved_version_change': linha[28]})
-				continue
-
-			if encontrou:
-				raise StopIteration
-		'''
-
+		versions = npm_package['versions']
+		latest_version = npm_package['dist-tags']['latest']
+		latest_release = versions[latest_version]
+		qtd_versions = len(versions.keys())
+		qtd_depends = len(latest_release['dependencies']) + len(latest_release['devDependencies'])
+		print(get_line(packageName, qtd_versions, qtd_depends, 'anyvalue', 'anyvalue', 'anyvalue'))
 	except StopIteration:
 		print('OK')
-		arquivo2.close()
+		fileOutput.close()
 
 count_results('phoenix-cypto')
