@@ -2,7 +2,7 @@ import csv
 import json
 
 def get_line(package, qtd_versions, qtd_depends, qtd_sucess, qtd_err, link):
-	return package + ',' + str(qtd_versions) + ',' + str(qtd_depends) + ',' + str(qtd_sucess) + ',' + qtd_err + ',' + link
+	return package + ',' + str(qtd_versions) + ',' + str(qtd_depends) + ',' + str(qtd_sucess) + ',' + str(qtd_err) + ',' + link + '\n'
 
 def count_results(packageName):
 	try:
@@ -13,13 +13,24 @@ def count_results(packageName):
 		print('File: ' + packageName + ' not exists: ' + ex)
 
 	try:
-		file.__next__() # jump the header
+		print(file.__next__()) # jump the header
 		versions = npm_package['versions']
 		latest_version = npm_package['dist-tags']['latest']
 		latest_release = versions[latest_version]
 		qtd_versions = len(versions.keys())
 		qtd_depends = len(latest_release['dependencies']) + len(latest_release['devDependencies'])
-		print(get_line(packageName, qtd_versions, qtd_depends, 'anyvalue', 'anyvalue', 'anyvalue'))
+		qtd_sucess = 0
+		qtd_err = 0
+		link = latest_release['repository']['url']
+
+		while True:
+			line = file.__next__()
+			if line[3].__eq__('OK') and line[4].__eq__('OK'):
+				qtd_sucess += 1
+			else:
+				qtd_err += 1
+
+			fileOutput.write(get_line(packageName, qtd_versions, qtd_depends, qtd_sucess, qtd_err, link))
 	except StopIteration:
 		print('OK')
 		fileOutput.close()
