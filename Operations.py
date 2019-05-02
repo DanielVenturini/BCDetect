@@ -2,6 +2,7 @@ from colorama import Fore, Style
 import subprocess as sp
 from Except import (ScriptTestErr, InstallErr, TestErr)
 import datetime
+import json
 import re
 
 # to print the table formated
@@ -85,6 +86,14 @@ def clone(urlRepo, client_name):
 def deleteCurrentFolder(client_name):
     sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))
 
+
+# just add date in package
+def addDate(release, filename='./package.json'):
+    file = open(filename)
+    package = json.load(file)
+    package['date'] = release.client_timestamp
+    json.dump(package, open(filename, 'w'), indent=2)
+    #file.close()
 
 # update all dependencies in package.json
 def updatePackage(release, package, pathName):

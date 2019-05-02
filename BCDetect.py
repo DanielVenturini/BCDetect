@@ -88,6 +88,9 @@ class Iterator:
             if argv[self.current].__eq__('--j-check-p'):# just does a checkout in a repo and change the package.json
                 continue
 
+            if argv[self.current].__eq__('--add-date'): # even add date that the --j-check is used
+                continue
+
             if argv[self.current].startswith('--'):     # another flag, that does know
                 print('**`FLAG UNKNOKW: `{0}` **'.format(argv[self.current]))
                 continue
@@ -152,9 +155,12 @@ class Execute(threading.Thread):
             # just does a checkout and change a package.json
             checkout_p = self.getFlag('--j-check-p')
 
+            # just add date in package.json when --j-check is used
+            aDate = self.getFlag('--add-date')
+
             try:
                 reader = verifyFile(fileName)
-                Worker(reader, version, clone, delete, checkout, checkout_p).start()
+                Worker(reader, version, clone, delete, checkout, checkout_p, aDate).start()
             except Exception as ex:
                 print("Exception: " + str(ex))
                 continue

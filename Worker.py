@@ -7,10 +7,11 @@ from Except import (ScriptTestErr, InstallErr, TestErr, NoDependencyChange)
 
 class Worker():
 
-    def __init__(self, reader, version, clone, delete, checkout, checkout_p):
+    def __init__(self, reader, version, clone, delete, checkout, checkout_p, aDate):
         self.onlyVersion = version
         self.delete = delete
         self.reader = reader
+        self.aDate = aDate
         self.toClone = clone
         self.checkout = checkout
         self.checkout_p = checkout_p
@@ -75,6 +76,9 @@ class Worker():
 
             if self.checkout:
                 op.getHEAD(self.pathName, self.release)
+                if self.aDate:
+                    op.addDate(self.release, self.pathName+'/package.json')
+
                 exit(0)
 
             try:
