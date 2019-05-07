@@ -1,8 +1,8 @@
-export PACKAGE=scurvy
-export VERSION=0.0.1
-cd /home/venturini/git/bcdetect/workspace/
-rm -rf *
-cd /home/venturini/git/bcdetect/
+export PACKAGE=react-components
+export VERSION=0.0.2
+export BCDETECT=git/bcdetect
+cd $HOME/$BCDETECT/workspace/ && rm -rf *
+cd $HOME/$BCDETECT/
 python3 BCDetect.py $PACKAGE --no-del --j-check-p --only $VERSION
 cd workspace/$PACKAGE/
 npm i
