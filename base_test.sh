@@ -7,4 +7,4 @@ cd $HOME/$BCDETECT/
 python3 BCDetect.py $PACKAGE --no-del --j-check-p --only $VERSION
 cd workspace/$PACKAGE/
 rm package-lock.json
-npm i --silent && echo -e $MESSAGE  && npm test
+npm i && echo -e $MESSAGE  && npm test
