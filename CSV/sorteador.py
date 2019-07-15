@@ -93,7 +93,7 @@ def sorteador(quantidade):
     try:
         while qtd < quantidade:							# recupera 30 pacotes
 
-            csvReader = csv.reader(open('todos_pacotes.csv', 'r'), delimiter=',', quotechar='\n')
+            csvReader = csv.reader(open('all_packages.csv', 'r'), delimiter=',', quotechar='\n')
             packageLine = random.randint(0, 366629)	    # sorteia uma linha 31608634 ou 366629
 
             print('linha sorteada:', packageLine)
