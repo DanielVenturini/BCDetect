@@ -48,11 +48,18 @@ def getScriptTest(package):
     except:
         return 'no test specified'
 
-def getDependencias(package):
+def getGenericDependencies(package, depType):
     try:
-        return len(list(package['latest']['dependencies'].keys()))
+        return len(list(package['latest'][depType].keys()))
     except:
         return 0
+
+def getDependencias(package):
+    return \
+        getGenericDependencies(package, 'dependencies') + \
+        getGenericDependencies(package, 'devDependencies') + \
+        getGenericDependencies(package, 'peerDependencies') + \
+        getGenericDependencies(package, 'optionalDependencies')
 
 def getTest(package):
     try:
@@ -121,6 +128,8 @@ def geraBoxPlot(arquivo):
     csvReader.__next__()    # ignorando a primeira linha
     dependencias = []
     releases = []
+    count  = 0
+    limit = 0
 
     try:
         while True:
@@ -132,15 +141,14 @@ def geraBoxPlot(arquivo):
             test = getTest(package)
             url_repo = getUrl(package)
 
-            resp = 'ERR'
             if qtdDepende >= 1 and url_repo and test:
                 if verifyExistsRepo(url_repo):
                     dependencias.append(qtdDepende)
                     releases.append(qtdVersoes)
-                    print('{0}-{1}'.format(qtdDepende, qtdVersoes))
-                    resp = 'OK'
 
-            #print('{0}; deps: {1}; versions: {2}; test: {3}; url: {4}; exists: {5}'.format(pacote, qtdDepende, qtdVersoes, test, url_repo, resp))
+            if count == limit:
+                print(count)
+                limit += 1000
 
     except Exception as ex:
         print('Err: ' + str(ex))
