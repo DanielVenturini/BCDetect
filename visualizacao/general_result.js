@@ -21,6 +21,10 @@ option = {
         value: true,
         focusNodeAdjacency: 'allEdges',
         data: [{
+            name: 'Pacotes'
+        }, {
+            name: 'Executados'
+        }, {
             name: 'Releases'
         }, {
             name: 'Executadas'
@@ -32,6 +36,22 @@ option = {
             name: 'Erro'
         }],
         links: [{
+            source: 'Pacotes',
+            target: 'Executados',
+            value: 384
+        }, {
+            source: 'Executados',
+            target: 'Sucesso',
+            value: 140
+        }, {
+            source: 'Executados',
+            target: 'Erro',
+            value: 244
+        }, {
+            source: 'Releases',
+            target: 'Executadas',
+            value: 2662
+        }, {
             source: 'Releases',
             target: 'Executadas',
             value: 2662
