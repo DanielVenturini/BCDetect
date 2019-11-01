@@ -17,6 +17,16 @@ option = {
             top: '90%'
         }
     ],
+    toolbox: {
+        show : true,
+        feature : {
+            mark        : {show: true},
+            dataView    : {show: true, readOnly: false},
+            saveAsImage : {show: true},
+            magicType   : {show: false, type: ['pie', 'funnel']},
+            restore     : {show: false}
+        }
+    },
     tooltip: {
         trigger: 'item',
         axisPointer: {

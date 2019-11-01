@@ -7,9 +7,39 @@
 		<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/DanielVenturini/solid-visualization/v5/echarts.min.js"></script>
 		<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/DanielVenturini/solid-visualization/v5/prepare.js"></script>
 	</head>
-	<div id="view"  style="width: 50%;height:600px;margin:auto"></div>
 	<body style="background-color: #e6e6e6">
-		<script src="https://cdn.jsdelivr.net/gh/DanielVenturini/BCDetect@master/CSV/dataBoxPlot.js" ></script>
-		<script src="https://cdn.jsdelivr.net/gh/DanielVenturini/BCDetect@master/visualizacao/script.js" ></script>
+		<button onclick="loadJS('https://cdn.jsdelivr.net/gh/DanielVenturini/BCDetect@master/visualizacao/script.js', 'boxplot');">Base/Sample</button>
+		<button onclick="loadJS('https://cdn.jsdelivr.net/gh/DanielVenturini/BCDetect@master/visualizacao/general_result.js', 'general');">General Results</button>
+		<div id="view"  style="width: 50%;height:600px;margin:auto"></div>
 	</body>
 </html>
+
+<script type="application/javascript">
+	ids = ['boxplot', 'general']
+
+	function remove_scripts() {
+		for (id in ids) {
+			elm = document.getElementById(id)
+			if(elm) {
+				document.body.removeChild(elm)
+			}
+		}
+	}
+
+	function loadJS(src, id) {
+		if(id == 'boxplot') {
+			loadJS('https://cdn.jsdelivr.net/gh/DanielVenturini/BCDetect@master/CSV/dataBoxPlot.js', 'boxplot_data')
+		}
+
+		// DOM: Create the script element
+		var jsElm = document.createElement("script")
+		// set the type attribute
+		jsElm.type = "application/javascript"
+		// make the script element load file
+		jsElm.src = src
+		jsElm.id = id
+		// finally insert the element to the body element in order to load the script
+		remove_scripts()
+		document.body.appendChild(jsElm)
+	}
+</script>
