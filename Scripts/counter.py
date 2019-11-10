@@ -95,8 +95,8 @@ packages_false_positive = 37
 releases_false_positive = 172 + (1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 1 + 1 + 6 + 18 + 9 + 9 + 1 + 26 + 17 + 2 + 1 + 28 + 10 + 1 + 55 + 39 + 4)
 # non-break change packages/releases
 # node version, external api, provider/release removed, major version
-non_bc_packages = 14
-non_bc_releases = 53 + (1 + 2 + 2 + 2 + 1 + 1 + 1 + 1 + 1 + 6 + 4 + 2 + 6 + 11 + 1 + 1 + 3 + 1 + 10 + 11 + 2 + 2 + 43 + 12 + 8 + 5 + 3 + 1 + 7 + 3)
+non_bc_packages = 14 + 1
+non_bc_releases = 53 + (1 + 2 + 2 + 2 + 1 + 1 + 1 + 1 + 1 + 6 + 4 + 2 + 6 + 11 + 1 + 1 + 3 + 1 + 10 + 11 + 2 + 2 + 43 + 12 + 8 + 5 + 3 + 1 + 7 + 3 + 6)
 # with no test
 no_test = 5 + 4 + 1 + 12 + 20
 
@@ -120,15 +120,26 @@ for file in files:
 	except Exception as ex:
 		print(file + ': ' + str(ex))
 
-# adjust these values
+# adjust these values to un-script errors
+count_executed -= no_test
+
+# adjust these values to unresolved errors
 count_broke_packages -= packages_error_unresolved
 count_broke_releases -= releases_error_unresolved
+
+# adjust these values to false-positives errors
+count_broke_releases -= releases_false_positive
+count_broke_packages -= packages_false_positive
+
+# adjust these values to non-breaking change
+#count_broke_packages -= non_bc_packages
+#count_broke_releases -= non_bc_releases
 
 print('              | Packages | Releases |')
 print(' Size         |  {0}     |   {1}   |'.format(all_packages, all_releases))
 print(' Executed     |  {0}     |   {1}   |'.format(all_packages, count_executed))
 print(' Non Executed |  {0}       |   {1}   |'.format(0, count_non_executed))
-print(' Success      |  {0}     |    {1}   |'.format(all_packages-count_broke_packages, count_executed-count_broke_releases))
+print(' Success      |  {0}     |    {1}  |'.format(all_packages-count_broke_packages, count_executed-count_broke_releases))
 print(' Error        |  {0}     |   {1}   |'.format(count_broke_packages, count_broke_releases))
 
 '''
@@ -142,32 +153,3 @@ for file in files:
 	except Exception as ex:
 		print(file + ': ' + str(ex))
 '''
-
-files = ['redux-devtools-log-monitor-ie8','immutable-json-schema','get-urls-cli','buffer-includes','metainfo','set-object','victory-component-boilerplate','reql-cli','dynamic-extras','most','restful-goose','nextprot','postcss-inrule']
-
-all_releases   = 0
-all_packages   = len(files)
-count_executed = 0
-count_non_executed   = 0
-count_broke_releases = 0
-count_broke_packages = 0
-
-for file in files:
-	try:
-		file = '../results/{}_results.csv'.format(file)
-		all_releases   += releases_CSV(file)
-		count_executed += executed(file)
-		count_non_executed      += non_executed(file)
-		count_broke_releases    += broke_releases(file)
-		count_broke_packages    += broke_packages(file)
-	except FileNotFoundError as fnfe:
-		print(fnfe)
-	except Exception as ex:
-		print(file + ': ' + str(ex))
-
-print('              | Packages | Releases |')
-print(' Size         |  {0}     |   {1}   |'.format(all_packages, all_releases))
-print(' Executed     |  {0}     |   {1}   |'.format(all_packages, count_executed))
-print(' Non Executed |  {0}       |   {1}   |'.format(0, count_non_executed))
-print(' Success      |  {0}     |    {1}   |'.format(all_packages-count_broke_packages, count_executed-count_broke_releases))
-print(' Error        |  {0}     |   {1}   |'.format(count_broke_packages, count_broke_releases))
