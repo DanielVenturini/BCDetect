@@ -16,7 +16,7 @@ class Package:
         self.fileName = fileName
 
         try:
-            self.fileJson = json.load(open(self.fileName))
+            self.fileJson = json.load(open(self.fileName, errors='ignore'))
             self.fileExists = True
         except FileNotFoundError:
             raise
