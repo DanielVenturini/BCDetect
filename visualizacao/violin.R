@@ -24,6 +24,7 @@ pdf(file='./violin_providers.pdf')
 # fill=name allow to automatically dedicate a color for each group
 ggplot(data_provedores, aes(x=data, y=value, fill=data)) +
   ggtitle('Provedores') +
+  scale_y_log10() +
   geom_violin()
 
 dev.off()
@@ -31,6 +32,7 @@ dev.off()
 pdf(file='./violin_releases.pdf')
 ggplot(data_releases, aes(x=data, y=value, fill=data)) +
   ggtitle('Releases') +
+  scale_y_log10() +
   geom_violin()
 
 dev.off()
