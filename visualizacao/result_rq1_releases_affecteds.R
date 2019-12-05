@@ -11,8 +11,10 @@ Provedores = c(48,102,3,34,37,15,23,5,36,6,16,20,41,15,13,5,3,32,10,27,13,7,4,11
 Afetados <- (Afetados*100)/Tamanho
 
 pdf(file='./result_rq1_releases_affecteds.pdf')
-plot(c(Provedores, Provedores_non_bc), c(Tamanho, Tamanho_non_bc), log='xy', type='p', xlab='Provedores', ylab='Tamanho', pch=20, col=rgb(0,0,0, alpha=0.1))
+plot(c(Provedores, Provedores_non_bc), c(Tamanho, Tamanho_non_bc), log='xy', type='p', xlab='Provedores', ylab='Tamanho', pch=20, col=rgb(0,0,0, alpha=0.1), frame=F)
 symbols(Provedores, Tamanho, circles=Afetados, inches=0.1, add=T, fg='red')
-abline(v=20, col='#69ff33')
-abline(h=20, col='#69ff33')
+abline(v=15, col='#69ff33')
+abline(h=15, col='#69ff33')
+legend("topright", legend=c('20%', '50%', '100%'),
+    pch=1, col=c('red', 'red', 'red'), pt.cex=c(2, 5, 10)*0.27)
 dev.off()
