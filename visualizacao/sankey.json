@@ -1,0 +1,20 @@
+{"nodes": [
+{"name":"Clientes"},
+{"name":"Executados ( 100% )"},
+{"name":"Releases"},
+{"name":"Executadas ( 49.8% )"},
+{"name":"Não executadas ( 50.2% )"},
+{"name":"Sucesso ( 60.3% )"},
+{"name":"Erro ( 39.7% )"},
+{"name":"Sucesso ( 49.7% )"},
+{"name":"Erro ( 50.3% )"}
+],
+"links": [
+{"source":0,"target":1,"value":384},
+{"source":1,"target":7,"value":191},
+{"source":1,"target":8,"value":193},
+{"source":2,"target":3,"value":2300},
+{"source":2,"target":4,"value":2312},
+{"source":3,"target":6,"value":912},
+{"source":3,"target":5,"value":1388}
+]}

@@ -1,0 +1,335 @@
+{
+  "assetgraph": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 16,
+    "time_until_introduction": 2049,
+    "introduced_after_releases": 385,
+    "releases": 432
+  },
+  "optipng": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 11,
+    "time_until_introduction": 937,
+    "introduced_after_releases": 8,
+    "releases": 14
+  },
+  "jsdom": {
+    "affected_clients_releases": [
+      21,
+      1
+    ],
+    "clients": 5792,
+    "time_until_introduction": 1,
+    "introduced_after_releases": 1,
+    "releases": 196
+  },
+  "babel-eslint": {
+    "affected_clients_releases": [
+      6,
+      12,
+      2,
+      2,
+      4,
+      1
+    ],
+    "clients": 21670,
+    "time_until_introduction": 1236,
+    "introduced_after_releases": 33,
+    "releases": 106
+  },
+  "acorn-es7-plugin": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 14,
+    "time_until_introduction": 68,
+    "introduced_after_releases": 8,
+    "releases": 25
+  },
+  "nodent": {
+    "affected_clients_releases": [
+      12
+    ],
+    "clients": 14,
+    "time_until_introduction": 1052,
+    "introduced_after_releases": 155,
+    "releases": 175
+  },
+  "js-yaml": {
+    "affected_clients_releases": [
+      5
+    ],
+    "clients": 3329,
+    "time_until_introduction": 1530,
+    "introduced_after_releases": 46,
+    "releases": 60
+  },
+  "socket.io": {
+    "affected_clients_releases": [
+      5
+    ],
+    "clients": 3752,
+    "time_until_introduction": 1838,
+    "introduced_after_releases": 84,
+    "releases": 106
+  },
+  "ember-cli-htmlbars-inline-precompile": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 3002,
+    "time_until_introduction": 1,
+    "introduced_after_releases": 1,
+    "releases": 24
+  },
+  "window-stream": {
+    "affected_clients_releases": [
+      3
+    ],
+    "clients": 2,
+    "time_until_introduction": 579,
+    "introduced_after_releases": 14,
+    "releases": 25
+  },
+  "request": {
+    "affected_clients_releases": [
+      7
+    ],
+    "clients": 23877,
+    "time_until_introduction": 821,
+    "introduced_after_releases": 54,
+    "releases": 118
+  },
+  "js2coffee": {
+    "affected_clients_releases": [
+      8
+    ],
+    "clients": 28,
+    "time_until_introduction": 972,
+    "introduced_after_releases": 16,
+    "releases": 32
+  },
+  "broccoli-plugin": {
+    "affected_clients_releases": [
+      6
+    ],
+    "clients": 94,
+    "time_until_introduction": 491,
+    "introduced_after_releases": 7,
+    "releases": 7
+  },
+  "source-map": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 964,
+    "time_until_introduction": 2333,
+    "introduced_after_releases": 62,
+    "releases": 59
+  },
+  "redis": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 3321,
+    "time_until_introduction": 1919,
+    "introduced_after_releases": 89,
+    "releases": 99
+  },
+  "esprima": {
+    "affected_clients_releases": [
+      4
+    ],
+    "clients": 1357,
+    "time_until_introduction": 1,
+    "introduced_after_releases": 1,
+    "releases": 44
+  },
+  "test-machinepack": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 1,
+    "time_until_introduction": 902,
+    "introduced_after_releases": 36,
+    "releases": 30
+  },
+  "react": {
+    "affected_clients_releases": [
+      1,
+      3
+    ],
+    "clients": 26881,
+    "time_until_introduction": 1533,
+    "introduced_after_releases": 59,
+    "releases": 118
+  },
+  "react-redux-provide": {
+    "affected_clients_releases": [
+      4
+    ],
+    "clients": 27,
+    "time_until_introduction": 204,
+    "introduced_after_releases": 39,
+    "releases": 101
+  },
+  "imagemin-optipng": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 82,
+    "time_until_introduction": 278,
+    "introduced_after_releases": 8,
+    "releases": 15
+  },
+  "eslint-config-airbnb-base": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 3170,
+    "time_until_introduction": 318,
+    "introduced_after_releases": 27,
+    "releases": 31
+  },
+  "eslint": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 45633,
+    "time_until_introduction": 611,
+    "introduced_after_releases": 48,
+    "releases": 160
+  },
+  "abstract-iterator": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 7,
+    "time_until_introduction": 26,
+    "introduced_after_releases": 7,
+    "releases": 10
+  },
+  "grunt-testacular": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 3,
+    "time_until_introduction": 124,
+    "introduced_after_releases": 4,
+    "releases": 5
+  },
+  "babel-preset-es2015": {
+    "affected_clients_releases": [
+      1,
+      2
+    ],
+    "clients": 40413,
+    "time_until_introduction": 281,
+    "introduced_after_releases": 17,
+    "releases": 33
+  },
+  "front-matter": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 232,
+    "time_until_introduction": 574,
+    "introduced_after_releases": 9,
+    "releases": 26
+  },
+  "remark-validate-links": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 94,
+    "time_until_introduction": 241,
+    "introduced_after_releases": 6,
+    "releases": 8
+  },
+  "jslint": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 308,
+    "time_until_introduction": 1473,
+    "introduced_after_releases": 51,
+    "releases": 62
+  },
+  "collections": {
+    "affected_clients_releases": [
+      2,
+      13
+    ],
+    "clients": 92,
+    "time_until_introduction": 1567,
+    "introduced_after_releases": 51,
+    "releases": 62
+  },
+  "stylelint": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 978,
+    "time_until_introduction": 509,
+    "introduced_after_releases": 17,
+    "releases": 107
+  },
+  "foundation-sites": {
+    "affected_clients_releases": [
+      15
+    ],
+    "clients": 87,
+    "time_until_introduction": 580,
+    "introduced_after_releases": 25,
+    "releases": 31
+  },
+  "backbone": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 1252,
+    "time_until_introduction": 957,
+    "introduced_after_releases": 18,
+    "releases": 28
+  },
+  "mongodb": {
+    "affected_clients_releases": [
+      14
+    ],
+    "clients": 3058,
+    "time_until_introduction": 771,
+    "introduced_after_releases": 109,
+    "releases": 286
+  },
+  "yeoman-environment": {
+    "affected_clients_releases": [
+      12
+    ],
+    "clients": 150,
+    "time_until_introduction": 574,
+    "introduced_after_releases": 19,
+    "releases": 26
+  },
+  "heroku-client": {
+    "affected_clients_releases": [
+      2
+    ],
+    "clients": 77,
+    "time_until_introduction": 1,
+    "introduced_after_releases": 1,
+    "releases": 67
+  },
+  "event-emitter-grouped": {
+    "affected_clients_releases": [
+      1
+    ],
+    "clients": 3,
+    "time_until_introduction": 1058,
+    "introduced_after_releases": 8,
+    "releases": 9
+  }
+}
