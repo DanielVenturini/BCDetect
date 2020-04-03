@@ -25,11 +25,7 @@ dev.off()
 # -----------------------------
 # GRAPH 2
 # -----------------------------
-
-#install.packages('fmsb')
-library(fmsb)
-
-pdf('./percentage_clients_bc.pdf', width=10, height=10)
+pdf('./percentage_clients_bc.pdf')
 
 # -----------------------------
 # CITATIONS
@@ -42,16 +38,32 @@ r_bc <- Tamanho
 p_bc <- Provedores
 
 # clients_[up|down]_[left|rigth]
+# get percentage
 c_u_l <- qtd_quad(1, TRUE, r_gen, p_gen)
 c_u_r <- qtd_quad(2, TRUE, r_gen, p_gen)
 c_d_l <- qtd_quad(3, TRUE, r_gen, p_gen)
 c_d_r <- qtd_quad(4, TRUE, r_gen, p_gen)
+# get real number
+n_u_l <- qtd_quad(1, FALSE, r_gen, p_gen)
+n_u_r <- qtd_quad(2, FALSE, r_gen, p_gen)
+n_d_l <- qtd_quad(3, FALSE, r_gen, p_gen)
+n_d_r <- qtd_quad(4, FALSE, r_gen, p_gen)
 # break_[up|down]_[left|rigth]
-b_u_l <- qtd_quad(1, TRUE, r_bc, p_bc, qtd_quad(1, FALSE, r_gen, p_gen))
-b_u_r <- qtd_quad(2, TRUE, r_bc, p_bc, qtd_quad(2, FALSE, r_gen, p_gen))
-b_d_l <- qtd_quad(3, TRUE, r_bc, p_bc, qtd_quad(3, FALSE, r_gen, p_gen))
-b_d_r <- qtd_quad(4, TRUE, r_bc, p_bc, qtd_quad(4, FALSE, r_gen, p_gen))
+# get the percentage of first percentage
+b_u_l <- round(qtd_quad(1, FALSE, r_bc, p_bc) * c_u_l / n_u_l, 2)
+b_u_r <- round(qtd_quad(2, FALSE, r_bc, p_bc) * c_u_r / n_u_r, 2)
+b_d_l <- round(qtd_quad(3, FALSE, r_bc, p_bc) * c_d_l / n_d_l, 2)
+b_d_r <- round(qtd_quad(4, FALSE, r_bc, p_bc) * c_d_r / n_d_r, 2)
+# subtract the breakchange percentage
+c_u_l <- c_u_l - b_u_l
+c_u_r <- c_u_r - b_u_r
+c_d_l <- c_d_l - b_d_l
+c_d_r <- c_d_r - b_d_r
 
+# evaluate:
+#c_d_r + b_d_r + c_d_l + b_d_l + c_u_r + b_u_r + c_u_l + b_u_l must be 100%
+
+# create others data
 general <- character()
 breakch <- character()
 for(i in 1:length(r_gen)) {
@@ -71,17 +83,19 @@ breakch_f <- factor(breakch)
 
 # 'Inf. direito' 'Inf. direito' 'Inf. esquerdo' 'Inf. esquerdo' 'Sup. direito' 'Sup. direito' 'Sup. esquerdo' 'Sup. esquerdo'
 quad <- rep(levels(general_f), each=2)
-condition <-rep(c('Others', 'Breaking change'), times=length(quad)/2)
+Casos <-rep(c('Outros', 'Breaking change'), times=length(quad)/2)
 value <- c(c_d_r, b_d_r, c_d_l, b_d_l, c_u_r, b_u_r, c_u_l, b_u_l)
 
-data <- data.frame(quad, condition, value)
+data <- data.frame(quad, Casos, value)
 
 library(ggplot2)
 
 # Stacked + percent
-ggplot(data, aes(fill=condition, y=value, x=quad)) + 
+# https://www.r-graph-gallery.com/48-grouped-barplot-with-ggplot2.html
+ggplot(data, aes(fill=Casos, y=value, x=quad)) +
     geom_bar(position="stack", stat="identity") +
     xlab('Quadrante') +
-    ylab('%')
+    ylab('(%)') +
+    theme_classic()
 
 dev.off()
