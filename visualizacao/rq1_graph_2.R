@@ -27,33 +27,6 @@ dev.off()
 # -----------------------------
 pdf('./percentage_clients_bc.pdf')
 
-# -----------------------------
-# CITATIONS
-# -----------------------------
-
-r_gen <- c(Tamanho_non_bc, Tamanho)
-p_gen <- c(Provedores_non_bc, Provedores)
-# releases and providers with BC
-r_bc <- Tamanho
-p_bc <- Provedores
-
-# clients_[up|down]_[left|rigth]
-# get percentage
-c_u_l <- qtd_quad(1, TRUE, r_gen, p_gen)
-c_u_r <- qtd_quad(2, TRUE, r_gen, p_gen)
-c_d_l <- qtd_quad(3, TRUE, r_gen, p_gen)
-c_d_r <- qtd_quad(4, TRUE, r_gen, p_gen)
-# get real number
-n_u_l <- qtd_quad(1, FALSE, r_gen, p_gen)
-n_u_r <- qtd_quad(2, FALSE, r_gen, p_gen)
-n_d_l <- qtd_quad(3, FALSE, r_gen, p_gen)
-n_d_r <- qtd_quad(4, FALSE, r_gen, p_gen)
-# break_[up|down]_[left|rigth]
-# get the percentage of first percentage
-b_u_l <- round(qtd_quad(1, FALSE, r_bc, p_bc) * c_u_l / n_u_l, 2)
-b_u_r <- round(qtd_quad(2, FALSE, r_bc, p_bc) * c_u_r / n_u_r, 2)
-b_d_l <- round(qtd_quad(3, FALSE, r_bc, p_bc) * c_d_l / n_d_l, 2)
-b_d_r <- round(qtd_quad(4, FALSE, r_bc, p_bc) * c_d_r / n_d_r, 2)
 # subtract the breakchange percentage
 c_u_l <- c_u_l - b_u_l
 c_u_r <- c_u_r - b_u_r
@@ -77,10 +50,6 @@ for(i in 1:length(r_bc)) {
 general_f <- factor(general)
 breakch_f <- factor(breakch)
 
-#summary(general_f)
-#table(general_f)
-#plot(general_f)
-
 # 'Inf. direito' 'Inf. direito' 'Inf. esquerdo' 'Inf. esquerdo' 'Sup. direito' 'Sup. direito' 'Sup. esquerdo' 'Sup. esquerdo'
 quad <- rep(levels(general_f), each=2)
 Casos <-rep(c('Outros', 'Breaking change'), times=length(quad)/2)
@@ -99,3 +68,14 @@ ggplot(data, aes(fill=Casos, y=value, x=quad)) +
     theme_classic()
 
 dev.off()
+
+# -----------------------------
+# CITATIONS
+# -----------------------------
+
+ceiling(median(r_bc))
+ceiling(median(p_bc))
+c_u_l + b_u_l
+qtd_quad(1, TRUE, r_bc, p_bc)
+c_d_l
+qtd_quad(3, FALSE, r_bc, p_bc)

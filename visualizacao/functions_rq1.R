@@ -32,20 +32,17 @@ vertical <- function(quad, val_prov, providers) {
 	return (FALSE)
 }
 
-# code that calculates the percentage/qtd of packages in one square
+# code that calculates the percentage/qtd of clients in one square
 # quad = 1 is up left
 # quad = 2 is up rigth
 # quad = 3 is down left
 # quad = 4 is down right
-qtd_quad <- function(quad, perc, releases, providers, div=length(releases)) {
-	qtd_x  <- 0
+qtd_quad_cli <- function(quad, perc, releases, providers, div=length(releases)) {
 	qtd_y <- 0
 	for(pos in 1:length(releases)) {
-		if(horizontal(quad, releases[pos], releases)) {
-			qtd_x <- qtd_x + 1
-			if(vertical(quad, providers[pos], providers)) {
-				qtd_y <- qtd_y + 1
-			}
+		if(horizontal(quad, releases[pos], releases) && 
+			vertical(quad, providers[pos], providers)) {
+			qtd_y <- qtd_y + 1
 		}
 	}
 
@@ -56,6 +53,45 @@ qtd_quad <- function(quad, perc, releases, providers, div=length(releases)) {
 	}
 }
 
+# calculates the percentage/qtd of releases in one square
+qtd_quad_rel <- function(quad, perc, releases, providers, div=sum(releases)) {
+	qtd_x  <- 0
+	qtd_rel <- 0
+	for(pos in 1:length(releases)) {
+		if(horizontal(quad, releases[pos], releases)) {
+			qtd_x <- qtd_x + 1
+			if(vertical(quad, providers[pos], providers)) {
+				qtd_rel <- qtd_rel + releases[pos]
+			}
+		}
+	}
+
+	if(perc) {
+		return(round(qtd_rel * 100/div, 2))
+	} else {
+		return(qtd_rel)
+	}
+}
+
+# calculates the percentage/qtd of providers in one square
+qtd_quad_prov <- function(quad, perc, releases, providers, div=sum(providers)) {
+	qtd_x  <- 0
+	qtd_prov <- 0
+	for(pos in 1:length(releases)) {
+		if(horizontal(quad, releases[pos], releases)) {
+			qtd_x <- qtd_x + 1
+			if(vertical(quad, providers[pos], providers)) {
+				qtd_prov <- qtd_prov + providers[pos]
+			}
+		}
+	}
+
+	if(perc) {
+		return(round(qtd_prov * 100/div, 2))
+	} else {
+		return(qtd_prov)
+	}
+}
 
 # return the providers of clients that are more than rel releases.
 # if you want know how much clients with forty or more releases,

@@ -25,3 +25,31 @@ Provedores <- c(48,102,3,34,37,15,23,5,36,6,16,20,41,15,13,5,3,32,10,27,13,7,4,1
 
 # normalize the size of affecteds release
 Afetados <- (Afetados*100)/Tamanho
+
+# -----------------------
+# GRAPH 3
+# -----------------------
+
+r_gen <- c(Tamanho_non_bc, Tamanho)
+p_gen <- c(Provedores_non_bc, Provedores)
+# releases and providers with BC
+r_bc <- Tamanho
+p_bc <- Provedores
+
+# clients_[up|down]_[left|rigth]
+# get percentage
+c_u_l <- qtd_quad_cli(1, TRUE, r_gen, p_gen)
+c_u_r <- qtd_quad_cli(2, TRUE, r_gen, p_gen)
+c_d_l <- qtd_quad_cli(3, TRUE, r_gen, p_gen)
+c_d_r <- qtd_quad_cli(4, TRUE, r_gen, p_gen)
+# get real number
+n_u_l <- qtd_quad_cli(1, FALSE, r_gen, p_gen)
+n_u_r <- qtd_quad_cli(2, FALSE, r_gen, p_gen)
+n_d_l <- qtd_quad_cli(3, FALSE, r_gen, p_gen)
+n_d_r <- qtd_quad_cli(4, FALSE, r_gen, p_gen)
+# break_[up|down]_[left|rigth]
+# get the percentage of first percentage
+b_u_l <- round(qtd_quad_cli(1, FALSE, r_bc, p_bc) * c_u_l / n_u_l, 2)
+b_u_r <- round(qtd_quad_cli(2, FALSE, r_bc, p_bc) * c_u_r / n_u_r, 2)
+b_d_l <- round(qtd_quad_cli(3, FALSE, r_bc, p_bc) * c_d_l / n_d_l, 2)
+b_d_r <- round(qtd_quad_cli(4, FALSE, r_bc, p_bc) * c_d_r / n_d_r, 2)
