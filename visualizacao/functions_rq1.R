@@ -53,46 +53,6 @@ qtd_quad_cli <- function(quad, perc, releases, providers, div=length(releases)) 
 	}
 }
 
-# calculates the percentage/qtd of releases in one square
-qtd_quad_rel <- function(quad, perc, releases, providers, div=sum(releases)) {
-	qtd_x  <- 0
-	qtd_rel <- 0
-	for(pos in 1:length(releases)) {
-		if(horizontal(quad, releases[pos], releases)) {
-			qtd_x <- qtd_x + 1
-			if(vertical(quad, providers[pos], providers)) {
-				qtd_rel <- qtd_rel + releases[pos]
-			}
-		}
-	}
-
-	if(perc) {
-		return(round(qtd_rel * 100/div, 2))
-	} else {
-		return(qtd_rel)
-	}
-}
-
-# calculates the percentage/qtd of providers in one square
-qtd_quad_prov <- function(quad, perc, releases, providers, div=sum(providers)) {
-	qtd_x  <- 0
-	qtd_prov <- 0
-	for(pos in 1:length(releases)) {
-		if(horizontal(quad, releases[pos], releases)) {
-			qtd_x <- qtd_x + 1
-			if(vertical(quad, providers[pos], providers)) {
-				qtd_prov <- qtd_prov + providers[pos]
-			}
-		}
-	}
-
-	if(perc) {
-		return(round(qtd_prov * 100/div, 2))
-	} else {
-		return(qtd_prov)
-	}
-}
-
 # return the providers of clients that are more than rel releases.
 # if you want know how much clients with forty or more releases,
 # use more_than_releases(39)

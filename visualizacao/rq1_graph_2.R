@@ -1,5 +1,7 @@
-source('./data_rq1.R')
 source('./functions_rq1.R')
+source('./data_rq1.R')
+library(ggplot2)
+library(viridis)
 
 # -----------------------------
 # GRAPH 1
@@ -25,47 +27,24 @@ dev.off()
 # -----------------------------
 # GRAPH 2
 # -----------------------------
-pdf('./percentage_clients_bc.pdf')
 
-# subtract the breakchange percentage
-c_u_l <- c_u_l - b_u_l
-c_u_r <- c_u_r - b_u_r
-c_d_l <- c_d_l - b_d_l
-c_d_r <- c_d_r - b_d_r
-
-# evaluate:
-#c_d_r + b_d_r + c_d_l + b_d_l + c_u_r + b_u_r + c_u_l + b_u_l must be 100%
-
-# create others data
-general <- character()
-breakch <- character()
-for(i in 1:length(r_gen)) {
-    general <- c(general, get_quad_name(i, r_gen, p_gen))
-}
-
-for(i in 1:length(r_bc)) {
-    breakch <- c(breakch, get_quad_name(i, r_bc, p_bc))
-}
-
-general_f <- factor(general)
-breakch_f <- factor(breakch)
-
-# 'Inf. direito' 'Inf. direito' 'Inf. esquerdo' 'Inf. esquerdo' 'Sup. direito' 'Sup. direito' 'Sup. esquerdo' 'Sup. esquerdo'
-quad <- rep(levels(general_f), each=2)
-Casos <-rep(c('Outros', 'Breaking change'), times=length(quad)/2)
-value <- c(c_d_r, b_d_r, c_d_l, b_d_l, c_u_r, b_u_r, c_u_l, b_u_l)
-
-data <- data.frame(quad, Casos, value)
-
-library(ggplot2)
-
-# Stacked + percent
 # https://www.r-graph-gallery.com/48-grouped-barplot-with-ggplot2.html
-ggplot(data, aes(fill=Casos, y=value, x=quad)) +
-    geom_bar(position="stack", stat="identity") +
-    xlab('Quadrante') +
-    ylab('(%)') +
-    theme_classic()
+# https://www.pdf2go.com
+pdf('./percentage_clients_bc.pdf', width=7, height=4)
+data <- data.frame(
+        especie=c(rep('Clientes', 4), rep('Clientes com breaking changes', 4)),
+        quadrante=rep(c('Sup. esquerdo', 'Sup. direito', 'Inf. esquerdo', 'Inf. direito'), 2),
+        valor=c(c_u_l, c_u_r, c_d_l, c_d_r, b_g_u_l, b_g_u_r, b_g_d_l, b_g_d_r)
+)
+
+ggplot(data, aes(fill=quadrante, y=valor, x=quadrante)) + 
+    geom_bar(position="dodge", stat="identity") +
+    scale_fill_viridis(discrete = T, option = "E") +
+    #ggtitle("Studying 4 species..") +
+    facet_wrap(~especie) +
+    theme(legend.position="none") +
+    xlab('Quadrante') + ylab('(%)') +
+    ylim(0, 49)
 
 dev.off()
 
@@ -75,7 +54,10 @@ dev.off()
 
 ceiling(median(r_bc))
 ceiling(median(p_bc))
-c_u_l + b_u_l
-qtd_quad(1, TRUE, r_bc, p_bc)
+c_d_r
+c_u_l
+b_g_u_l
 c_d_l
-qtd_quad(3, FALSE, r_bc, p_bc)
+b_g_d_l
+b_g_u_r
+b_g_d_r

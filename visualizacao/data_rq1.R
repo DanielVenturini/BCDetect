@@ -37,19 +37,19 @@ r_bc <- Tamanho
 p_bc <- Provedores
 
 # clients_[up|down]_[left|rigth]
-# get percentage
+# get percentage of clients in each square
 c_u_l <- qtd_quad_cli(1, TRUE, r_gen, p_gen)
 c_u_r <- qtd_quad_cli(2, TRUE, r_gen, p_gen)
 c_d_l <- qtd_quad_cli(3, TRUE, r_gen, p_gen)
 c_d_r <- qtd_quad_cli(4, TRUE, r_gen, p_gen)
-# get real number
+# get real number of clients in each square
 n_u_l <- qtd_quad_cli(1, FALSE, r_gen, p_gen)
 n_u_r <- qtd_quad_cli(2, FALSE, r_gen, p_gen)
 n_d_l <- qtd_quad_cli(3, FALSE, r_gen, p_gen)
 n_d_r <- qtd_quad_cli(4, FALSE, r_gen, p_gen)
 # break_[up|down]_[left|rigth]
-# get the percentage of first percentage
-b_u_l <- round(qtd_quad_cli(1, FALSE, r_bc, p_bc) * c_u_l / n_u_l, 2)
-b_u_r <- round(qtd_quad_cli(2, FALSE, r_bc, p_bc) * c_u_r / n_u_r, 2)
-b_d_l <- round(qtd_quad_cli(3, FALSE, r_bc, p_bc) * c_d_l / n_d_l, 2)
-b_d_r <- round(qtd_quad_cli(4, FALSE, r_bc, p_bc) * c_d_r / n_d_r, 2)
+# break_general_[up|down]_[left|rigth]
+b_g_u_l <- round(qtd_quad_cli(1, FALSE, r_bc, p_bc) * 100 / n_u_l, 2)
+b_g_u_r <- round(qtd_quad_cli(2, FALSE, r_bc, p_bc) * 100 / n_u_r, 2)
+b_g_d_l <- round(qtd_quad_cli(3, FALSE, r_bc, p_bc) * 100 / n_d_l, 2)
+b_g_d_r <- round(qtd_quad_cli(4, FALSE, r_bc, p_bc) * 100 / n_d_r, 2)
