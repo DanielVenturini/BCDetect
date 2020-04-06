@@ -11,7 +11,7 @@ data_rq1_graph1 = data.frame(
 )
 
 # -----------------------
-# GRAPH 2
+# GRAPH 1
 # -----------------------
 
 # from packages with no break changes
@@ -27,7 +27,7 @@ Provedores <- c(48,102,3,34,37,15,23,5,36,6,16,20,41,15,13,5,3,32,10,27,13,7,4,1
 Afetados <- (Afetados*100)/Tamanho
 
 # -----------------------
-# GRAPH 3
+# GRAPH 2
 # -----------------------
 
 r_gen <- c(Tamanho_non_bc, Tamanho)
@@ -53,3 +53,17 @@ b_g_u_l <- round(qtd_quad_cli(1, FALSE, r_bc, p_bc) * 100 / n_u_l, 2)
 b_g_u_r <- round(qtd_quad_cli(2, FALSE, r_bc, p_bc) * 100 / n_u_r, 2)
 b_g_d_l <- round(qtd_quad_cli(3, FALSE, r_bc, p_bc) * 100 / n_d_l, 2)
 b_g_d_r <- round(qtd_quad_cli(4, FALSE, r_bc, p_bc) * 100 / n_d_r, 2)
+
+# -----------------------
+# GRAPH 3
+# -----------------------
+
+provs_info <- data.frame(
+    prov=c('assetgraph', 'optipng', 'babel-eslint', 'acorn-es7-plugin', 'nodent', 'js-yaml', 'socket.io', 'window-stream', 'request', 'js2coffee', 'broccoli-plugin', 'redis', 'react', 'react-redux-provide', 'imagemin-optipng', 'eslint-config-airbnb-base', 'eslint', 'abstract-iterator', 'grunt-testacular', 'babel-preset-es2015', 'front-matter', 'remark-validate-links', 'jslint', 'collections', 'stylelint', 'foundation-sites', 'backbone', 'mongodb', 'yeoman-environment', 'event-emitter-grouped'),
+    qtd_cli=c(16, 11, 21670, 14, 14, 3329, 3752, 2, 23877, 28, 94, 3321, 26881, 27, 82, 3170, 45633, 7, 3, 40413, 232, 94, 308, 92, 978, 87, 1252, 3058, 150, 3),
+    time_until=c(2049, 937, 1236, 68, 1052, 1530, 1838, 579, 821, 972, 491, 1919, 1533, 204, 278, 318, 611, 26, 124, 281, 574, 241, 1473, 1567, 509, 580, 957, 771, 574, 1058),
+    rele_until=c(385, 8, 33, 8, 155, 46, 84, 14, 54, 16, 7, 89, 59, 39, 8, 27, 48, 7, 4, 17, 9, 6, 51, 51, 17, 25, 18, 109, 19, 8),
+    rele=c(432, 14, 106, 25, 175, 60, 106, 25, 118, 32, 7, 99, 118, 101, 15, 31, 160, 10, 5, 33, 26, 8, 62, 62, 107, 31, 28, 286, 26, 9),
+    um=c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+    range=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+)

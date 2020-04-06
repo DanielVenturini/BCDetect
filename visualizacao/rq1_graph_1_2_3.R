@@ -43,6 +43,7 @@ ggplot(data, aes(fill=quadrante, y=valor, x=quadrante)) +
     #ggtitle("Studying 4 species..") +
     facet_wrap(~especie) +
     theme(legend.position="none") +
+    #theme_bw() +
     xlab('Quadrante') + ylab('(%)') +
     ylim(0, 49)
 
@@ -61,3 +62,34 @@ c_d_l
 b_g_d_l
 b_g_u_r
 b_g_d_r
+
+# -----------------------------
+# GRAPH 3
+# -----------------------------
+
+releases_data <- provs_info$rele
+until_bc <- provs_info$rele_until
+res      <- round(until_bc*100/releases_data, 2)
+res <- sort(res)
+
+# https://www.pdf2go.com
+pdf('./providers_releases_bc.pdf', width=3, height=3)
+ggplot(provs_info, aes(x=range, y=res)) +
+  geom_point() +
+  geom_segment(aes(x=range, xend=range, y=0, yend=res)) +
+  labs(x='', y='%') +
+  theme_bw()
+dev.off()
+
+# -----------------------------
+# CITATIONS
+# -----------------------------
+
+count <- 0
+for(percentage in res) {
+  if(percentage < 50) {
+    count <- count + 1
+  }
+}
+
+count
