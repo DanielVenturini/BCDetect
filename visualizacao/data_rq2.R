@@ -5,8 +5,10 @@ library(igraph) # it's required to '%>%'
 # -----------------------------
 
 links <- data.frame(
-    source=c('Breaking changes em Minor', 'Breaking changes em Minor', 'Breaking changes em Minor', 'Provedores (15.4%)', 'Clientes (76.9%)', 'Clientes (76.9%)'),
-    target=c('Provedores (15.4%)', 'Clientes (76.9%)', 'Não consertadas (7.7%)', 'Patch (100%)', 'Patch (80%)', 'Minor (20%)'),
+    #source=c('Breaking changes em Minor', 'Breaking changes em Minor', 'Breaking changes em Minor', 'Provedores (15.4%)', 'Clientes (76.9%)', 'Clientes (76.9%)'),
+    #target=c('Provedores (15.4%)', 'Clientes (76.9%)', 'Não consertadas (7.7%)', 'Patch (100%)', 'Patch (80%)', 'Minor (20%)'),
+    source=c('Breaking changes in minor', 'Breaking changes in minor', 'Breaking changes in minor', 'Providers (15.4%)', 'Clients (76.9%)', 'Clients (76.9%)'),
+    target=c('Providers (15.4%)', 'Clients (76.9%)', 'Did not fix (7.7%)', 'Patch (100%)', 'Patch (80%)', 'Minor (20%)'),
     value=c(4, 20, 2, 4, 16, 4)
 )
 
@@ -19,7 +21,8 @@ nodes <- data.frame(
 # GRAPH 2
 # -----------------------------
 
-categories = c('Objeto indefinido (4 casos)', 'Provedores incompatíveis (11 casos)', 'Alteração de regras (14 casos)', 'Alteração de tipo de objeto (7 casos)', 'Código errado (3 casos)', 'Código não-atualizado (3 casos)', 'Renomeação de função (2 casos)', 'Arquivo não encontrado (1 caso)')
+#categories = c('Objeto indefinido (4 casos)', 'Provedores incompatíveis (11 casos)', 'Alteração de regras (14 casos)', 'Alteração de tipo de objeto (7 casos)', 'Código errado (3 casos)', 'Código não-atualizado (3 casos)', 'Renomeação de função (2 casos)', 'Arquivo não encontrado (1 caso)')
+categories = c('Undefined object (4 cases)', 'Incompatible providers versions (11 cases)', 'Changed one rule (14 cases)', 'Object type changed (7 cases)', 'Wrong code (3 cases)', 'Outdated code (3 cases)', 'Renamed function (2 cases)', 'File not found (1 case)')
 
 data <- data.frame(
 	categories=categories,

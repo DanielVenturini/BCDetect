@@ -13,7 +13,9 @@ links$IDtarget <- match(links$target, nodes$name)-1
 p <- sankeyNetwork(Links = links, Nodes = nodes, fontSize=15,
               Source = "IDsource", Target = "IDtarget",
               Value = "value", NodeID = "name", 
-              sinksRight=FALSE)
+              sinksRight=FALSE,
+              nodeWidth = 5, nodePadding = 3,
+              height = 250)
 p
 
 # -----------------------------
@@ -28,6 +30,7 @@ data <- data.frame(
 # -----------------------------
 # GRAPH 2
 # -----------------------------
-pdf('./semver_types.pdf')
+#pdf('./semver_types.pdf')
+pdf('~/git/paper_break_change/figures/semver_types.pdf')
 barplot(bilan, beside=T, legend.text=T, col=col, ylim=c(0,lim), ylab="%")
 dev.off()

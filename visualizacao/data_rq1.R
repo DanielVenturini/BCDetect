@@ -58,12 +58,22 @@ b_g_d_r <- round(qtd_quad_cli(4, FALSE, r_bc, p_bc) * 100 / n_d_r, 2)
 # GRAPH 3
 # -----------------------
 
+# provs_info <- data.frame(
+#     prov=c('assetgraph', 'optipng', 'babel-eslint', 'acorn-es7-plugin', 'nodent', 'js-yaml', 'socket.io', 'window-stream', 'request', 'js2coffee', 'broccoli-plugin', 'redis', 'react', 'react-redux-provide', 'imagemin-optipng', 'eslint-config-airbnb-base', 'eslint', 'abstract-iterator', 'grunt-testacular', 'babel-preset-es2015', 'front-matter', 'remark-validate-links', 'jslint', 'collections', 'stylelint', 'foundation-sites', 'backbone', 'mongodb', 'yeoman-environment', 'event-emitter-grouped'),
+#     qtd_cli=c(16, 11, 21670, 14, 14, 3329, 3752, 2, 23877, 28, 94, 3321, 26881, 27, 82, 3170, 45633, 7, 3, 40413, 232, 94, 308, 92, 978, 87, 1252, 3058, 150, 3),
+#     time_until=c(2049, 937, 1236, 68, 1052, 1530, 1838, 579, 821, 972, 491, 1919, 1533, 204, 278, 318, 611, 26, 124, 281, 574, 241, 1473, 1567, 509, 580, 957, 771, 574, 1058),
+#     rele_until=c(385, 8, 33, 8, 155, 46, 84, 14, 54, 16, 7, 89, 59, 39, 8, 27, 48, 7, 4, 17, 9, 6, 51, 51, 17, 25, 18, 109, 19, 8),
+#     rele=c(432, 14, 106, 25, 175, 60, 106, 25, 118, 32, 7, 99, 118, 101, 15, 31, 160, 10, 5, 33, 26, 8, 62, 62, 107, 31, 28, 286, 26, 9),
+#     um=c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+#     range=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+# )
+
 provs_info <- data.frame(
-    prov=c('assetgraph', 'optipng', 'babel-eslint', 'acorn-es7-plugin', 'nodent', 'js-yaml', 'socket.io', 'window-stream', 'request', 'js2coffee', 'broccoli-plugin', 'redis', 'react', 'react-redux-provide', 'imagemin-optipng', 'eslint-config-airbnb-base', 'eslint', 'abstract-iterator', 'grunt-testacular', 'babel-preset-es2015', 'front-matter', 'remark-validate-links', 'jslint', 'collections', 'stylelint', 'foundation-sites', 'backbone', 'mongodb', 'yeoman-environment', 'event-emitter-grouped'),
-    qtd_cli=c(16, 11, 21670, 14, 14, 3329, 3752, 2, 23877, 28, 94, 3321, 26881, 27, 82, 3170, 45633, 7, 3, 40413, 232, 94, 308, 92, 978, 87, 1252, 3058, 150, 3),
-    time_until=c(2049, 937, 1236, 68, 1052, 1530, 1838, 579, 821, 972, 491, 1919, 1533, 204, 278, 318, 611, 26, 124, 281, 574, 241, 1473, 1567, 509, 580, 957, 771, 574, 1058),
-    rele_until=c(385, 8, 33, 8, 155, 46, 84, 14, 54, 16, 7, 89, 59, 39, 8, 27, 48, 7, 4, 17, 9, 6, 51, 51, 17, 25, 18, 109, 19, 8),
-    rele=c(432, 14, 106, 25, 175, 60, 106, 25, 118, 32, 7, 99, 118, 101, 15, 31, 160, 10, 5, 33, 26, 8, 62, 62, 107, 31, 28, 286, 26, 9),
-    um=c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-    range=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+	qtd_cli=c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+	time_until=c(1919, 2049, 1533, 771, 580, 204, 1, 509, 1236, 1, 68, 124, 1, 957, 1530, 937, 1052, 821, 1058, 972, 1838, 241, 1473, 278, 26, 611, 281, 579, 318, 491, 574, 574, 1567, 1),
+	rele_until=c(89, 385, 59, 109, 25, 39, 1, 17, 33, 1, 8, 4, 1, 18, 46, 8, 155, 54, 8, 16, 84, 6, 51, 8, 7, 48, 17, 14, 27, 7, 9, 19, 51, 1),
+	rele=c(99, 432, 118, 286, 31, 101, 24, 107, 106, 67, 25, 5, 196, 28, 60, 14, 175, 118, 9, 32, 106, 8, 62, 15, 10, 160, 33, 25, 31, 7, 26, 26, 62, 44),
+	um=c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+	range=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34),
+	prov=c('redis', 'assetgraph', 'react', 'mongodb', 'foundation-sites', 'react-redux-provide', 'ember-cli-htmlbars-inline-precompile', 'stylelint', 'babel-eslint', 'heroku-client', 'acorn-es7-plugin', 'grunt-testacular', 'jsdom', 'backbone', 'js-yaml', 'optipng', 'nodent', 'request', 'event-emitter-grouped', 'js2coffee', 'socket.io', 'remark-validate-links', 'jslint', 'imagemin-optipng', 'abstract-iterator', 'eslint', 'babel-preset-es2015', 'window-stream', 'eslint-config-airbnb-base', 'broccoli-plugin', 'front-matter', 'yeoman-environment', 'collections', 'esprima')
 )
