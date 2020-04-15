@@ -47,4 +47,4 @@ stdev <- as.matrix(stdev[,-1]) * 1.96 / 10
 
 dimnames(bilan)[[2]] <- c('Major', 'Minor', 'Patch', 'Pré-release')
 #I am ready to add the error bar on the plot using my "error bar" function !
-col=c('#6666ff', '#ffff66', '#ff6666', '#66ff66', '#ff66ff', '#c2c2a3', 'black', 'brown')
+col <- c('#000000', '#262626', '#4d4d4d', '#737373', '#999999', '#bfbfbf', '#e6e6e6', '#ffffff')

@@ -43,7 +43,7 @@ data <- data.frame(
 
 ggplot(data, aes(fill=square, y=valor, x=square)) + 
     geom_bar(position="dodge", stat="identity") +
-    scale_fill_viridis(discrete = T, option = "E") +
+    scale_fill_grey(end = 0.9) +
     #ggtitle("Studying 4 species..") +
     facet_wrap(~especie) +
     #theme(legend.position="none") +

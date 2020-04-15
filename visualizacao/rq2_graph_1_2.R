@@ -9,12 +9,14 @@ library(networkD3)
 
 links$IDsource <- match(links$source, nodes$name)-1 
 links$IDtarget <- match(links$target, nodes$name)-1
-
+my_color <- 'd3.scaleOrdinal().range(["#000000"])'
+# semver_fixed.pdf
 p <- sankeyNetwork(Links = links, Nodes = nodes, fontSize=15,
               Source = "IDsource", Target = "IDtarget",
               Value = "value", NodeID = "name", 
               sinksRight=FALSE,
               nodeWidth = 5, nodePadding = 3,
+              colourScale = my_color,
               height = 250)
 p
 
