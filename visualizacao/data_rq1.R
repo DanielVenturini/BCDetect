@@ -69,11 +69,13 @@ b_g_d_r <- round(qtd_quad_cli(4, FALSE, r_bc, p_bc) * 100 / n_d_r, 2)
 # )
 
 provs_info <- data.frame(
-	qtd_cli=c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-	time_until=c(1919, 2049, 1533, 771, 580, 204, 1, 509, 1236, 1, 68, 124, 1, 957, 1530, 937, 1052, 821, 1058, 972, 1838, 241, 1473, 278, 26, 611, 281, 579, 318, 491, 574, 574, 1567, 1),
-	rele_until=c(89, 385, 59, 109, 25, 39, 1, 17, 33, 1, 8, 4, 1, 18, 46, 8, 155, 54, 8, 16, 84, 6, 51, 8, 7, 48, 17, 14, 27, 7, 9, 19, 51, 1),
-	rele=c(99, 432, 118, 286, 31, 101, 24, 107, 106, 67, 25, 5, 196, 28, 60, 14, 175, 118, 9, 32, 106, 8, 62, 15, 10, 160, 33, 25, 31, 7, 26, 26, 62, 44),
-	um=c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+	time_until=c(278, 1, 821, 1838, 1058, 1, 1236, 771, 937, 972, 1567, 2049, 574, 241, 318, 1533, 574, 491, 1, 281, 26, 509, 68, 1473, 1530, 204, 580, 1052, 1, 611, 124, 579, 957, 1919),
+	rele=c(15, 24, 118, 106, 9, 67, 106, 286, 14, 32, 62, 432, 26, 8, 31, 118, 26, 7, 196, 33, 10, 107, 25, 62, 60, 101, 31, 175, 44, 160, 5, 25, 28, 99),
 	range=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34),
-	prov=c('redis', 'assetgraph', 'react', 'mongodb', 'foundation-sites', 'react-redux-provide', 'ember-cli-htmlbars-inline-precompile', 'stylelint', 'babel-eslint', 'heroku-client', 'acorn-es7-plugin', 'grunt-testacular', 'jsdom', 'backbone', 'js-yaml', 'optipng', 'nodent', 'request', 'event-emitter-grouped', 'js2coffee', 'socket.io', 'remark-validate-links', 'jslint', 'imagemin-optipng', 'abstract-iterator', 'eslint', 'babel-preset-es2015', 'window-stream', 'eslint-config-airbnb-base', 'broccoli-plugin', 'front-matter', 'yeoman-environment', 'collections', 'esprima')
+	qtd_cli=c(50.0, 3.7, 36.84, 8.2, 100.0, 3.28, 47.53, 77.78, 0.62, 80.0, 24.11, 0.62, 66.67, 50.0, 100.0, 57.14, 85.71, 85.71, 13.66, 58.34, 20.0, 15.38, 5.0, 100.0, 8.2, 66.67, 50.0, 30.0, 66.67, 50.0, 100.0, 13.04, 5.56, 10.0),
+	um=c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+	prov=c('imagemin-optipng', 'ember-cli-htmlbars-inline-precompile', 'request', 'socket.io', 'event-emitter-grouped', 'heroku-client', 'babel-eslint', 'mongodb', 'optipng', 'js2coffee', 'collections', 'assetgraph', 'front-matter', 'remark-validate-links', 'eslint-config-airbnb-base', 'react', 'yeoman-environment', 'broccoli-plugin', 'jsdom', 'babel-preset-es2015', 'abstract-iterator', 'stylelint', 'acorn-es7-plugin', 'jslint', 'js-yaml', 'react-redux-provide', 'foundation-sites', 'nodent', 'esprima', 'eslint', 'grunt-testacular', 'window-stream', 'backbone', 'redis'),
+	rele_until=c(8, 1, 54, 84, 8, 1, 33, 109, 8, 16, 51, 385, 9, 6, 27, 59, 19, 7, 1, 17, 7, 17, 8, 51, 46, 39, 25, 155, 1, 48, 4, 14, 18, 89)
 )
+
+provs_info$percentage <- 100*round(provs_info$rele_until/provs_info$rele, 4)

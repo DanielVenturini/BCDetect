@@ -1,6 +1,10 @@
 import csv
 import json
 
+"""
+This code generates the data for RQ1_graph1
+"""
+
 # data to graph scatter-effects
 def getPackage(packageName, current=False):
     if current:
@@ -75,8 +79,8 @@ def data_first_graph():
     print(providers)
 
 def get_percentage(client, qtd_affected):
-    return qtd_affected
-    #return round(qtd_affected*100/executed(client))
+    #return qtd_affected
+    return round(qtd_affected*100/executed(client), 2)
 
 def get_providers_impact():
     result   = json.load(open('results.json'))
@@ -177,14 +181,14 @@ def copy_from_data(data):
 def data_fifth_graph():
     data = get_providers_impact()
     #data = get_providers_clients(data)
-    copy_from_data(data)
+    #copy_from_data(data)
     return data
 
 providers = data_fifth_graph()
-del(providers['jsdom'])
-del(providers['ember-cli-htmlbars-inline-precompile'])
-del(providers['esprima'])
-del(providers['heroku-client'])
+# del(providers['jsdom'])
+# del(providers['ember-cli-htmlbars-inline-precompile'])
+# del(providers['esprima'])
+# del(providers['heroku-client'])
 del(providers['source-map'])
 del(providers['test-machinepack'])
 
@@ -200,29 +204,29 @@ for provider in list(providers.keys()):
     #for number in providers[provider]['affected_clients_releases']:
     prov_names.append(provider)
     #cli_affect.append(number)
-    prov_cli.append(providers[provider]['clients'])
+    prov_cli.append(providers[provider]['affected_clients_releases'])
     time_until.append(providers[provider]['time_until_introduction'])
     rele_until.append(providers[provider]['introduced_after_releases'])
     releases.append(providers[provider]['releases'])
     rangee.append(count)
     count += 1
 
-#print(count)
-# print_data({
-#     'prov': prov_names,
-#     #'perc_cli': cli_affect,
-#     'qtd_cli': prov_cli,
-#     'time_until': time_until,
-#     'rele_until': rele_until,
-#     'rele': releases,
-#     'um': len(releases)*[1],
-#     'range': rangee
-# })
+print(count)
+print_data({
+    'prov': prov_names,
+    #'perc_cli': cli_affect,
+    'qtd_cli': list(map(lambda x: round(sum(x)/len(x), 2), prov_cli)),
+    'time_until': time_until,
+    'rele_until': rele_until,
+    'rele': releases,
+    'um': len(releases)*[1],
+    'range': rangee
+})
 
-percentage = [89.12,57.14,31.13,32.00,88.57,76.67,79.25,56.00,45.76,50.00,100.00,89.90,50.00,38.61,53.33,87.10,30.00,70.00,80.00,51.52,34.62,75.00,82.26,82.26,15.89,80.65,64.29,38.11,73.08,88.89]
-count = 0
-for i, value in enumerate(percentage):
-    if value >= 75:
-        count +=1 
+# # percentage = [89.12,57.14,31.13,32.00,88.57,76.67,79.25,56.00,45.76,50.00,100.00,89.90,50.00,38.61,53.33,87.10,30.00,70.00,80.00,51.52,34.62,75.00,82.26,82.26,15.89,80.65,64.29,38.11,73.08,88.89]
+# # count = 0
+# # for i, value in enumerate(percentage):
+# #     if value >= 75:
+# #         count +=1 
 
-count
+# # count

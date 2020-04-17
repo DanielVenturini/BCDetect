@@ -1,7 +1,8 @@
-source('./functions_rq1.R')
-source('./data_rq1.R')
+source('~/git/bcdetect/visualizacao/functions_rq1.R')
+source('~/git/bcdetect/visualizacao/data_rq1.R')
 library(ggplot2)
 library(viridis)
+library(effsize)
 
 # -----------------------------
 # GRAPH 1
@@ -79,18 +80,12 @@ b_g_d_r
 # GRAPH 3
 # -----------------------------
 
-releases_data <- provs_info$rele
-until_bc <- provs_info$rele_until
-res      <- round(until_bc*100/releases_data, 2)
-#res <- sort(res)
-res <- c(0, 0, 0, 0, 15.89, 30.00, 31.13, 32.00, 34.62, 38.11, 38.61, 45.76, 50.00, 50.00, 51.52, 53.33, 56.00, 57.14, 64.29, 70.00, 73.08, 75.00, 76.67, 79.25, 80.00, 80.65, 82.26, 82.26, 87.10, 88.57, 88.89, 89.12, 89.90, 100.00)
-
 # https://www.pdf2go.com
 pdf('~/git/paper_break_change/figures/providers_releases_bc.pdf', width=3, height=3)
 #pdf('./providers_releases_bc.pdf', width=3, height=3)
-ggplot(provs_info, aes(x=range, y=res)) +
+ggplot(provs_info, aes(x=range, y=sort(percentage))) +
   geom_point() +
-  geom_segment(aes(x=range, xend=range, y=0, yend=res)) +
+  geom_segment(aes(x=range, xend=range, y=0, yend=sort(percentage))) +
   labs(x='', y='%') +
   theme_bw() +
   theme(panel.border = element_blank(),axis.line = element_line(colour = "black"))
@@ -99,33 +94,93 @@ dev.off()
 # -----------------------------
 # CITATIONS
 # -----------------------------
-
 count <- 0
-for(percentage in res) {
+for(percentage in provs_info$percentage) {
   if(percentage < 35) {
     count <- count + 1
   }
 }
 
 count
-round(count*100/length(res), 1)
+round(count*100/length(provs_info$percentage), 1)
 
 count <- 0
-for(percentage in res) {
+for(percentage in provs_info$percentage) {
   if(percentage >= 35 && percentage < 75) {
     count <- count + 1
   }
 }
 
 count
-round(count*100/length(res), 1)
+round(count*100/length(provs_info$percentage), 1)
 
 count <- 0
-for(percentage in res) {
+for(percentage in provs_info$percentage) {
   if(percentage >= 75) {
     count <- count + 1
   }
 }
 
 count
-round(count*100/length(res), 1)
+round(count*100/length(provs_info$percentage), 1)
+
+
+# TESTE DE WILCOXON-MANN-WHITNEY
+# H0: o impacto das bcs são maiores no nível de evolução do que no nível final
+# H1: o impacto das bc é igual ou menor que o nível final
+
+evolu <- c()
+n <- 1
+sn <- 0
+final <- c()
+m <- 1
+sm <- 0
+
+for(pos in 1:length(provs_info$qtd_cli)) {
+  if(provs_info$percentage[pos] >= 35 && provs_info$percentage[pos] < 75 ) {
+    evolu <- c(evolu, provs_info$qtd_cli[pos])
+  } else if (provs_info$percentage[pos] >= 75) {
+    final <- c(final, provs_info$qtd_cli[pos])
+  }
+}
+
+#diminuir <- rep(TRUE, length(final))
+#diminuir[sample(1:length(final), 1)] <- FALSE
+evolu <- sort(evolu)
+#final <- final[diminuir]
+final <- sort(final)
+data <- c()
+
+for (pos in 1:length(c(final, evolu))) {
+  if(!is.na(evolu[n]) && evolu[n] < final[m]) {
+    data <- c(data, evolu[n])
+    n <- n + 1
+    sn <- sn + pos
+  } else {
+    data <- c(data, final[m])
+    m <- m + 1
+    sm <- sm + pos
+  }
+}
+
+n <- length(evolu)
+m <- length(final)
+
+un <- sn - (1/2)*n*(n + 1)
+um <- sm - (1/2)*m*(m + 1)
+sm + sn == (1/2)*(m + n)*(m + n + 1) # it must be TRUE
+um == m*n - un  # it must be TRUE
+
+# Se o valor de p for maior do que o nível de significância, você não deve rejeitar a hipótese nula
+# p-value = 0.6488
+wilcoxon = wilcox.test(evolu, final, 'greater', correct=FALSE)
+effect = cliff.delta(evolu, final, return.dm=TRUE)
+
+wilcoxon$p.value
+effect$estimate
+effect$magnitude
+
+# TESTE PARAMÉTRICO
+t.test(evolu, final)
+# insignificante
+cohen.d(evolu, final)
