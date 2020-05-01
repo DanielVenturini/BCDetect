@@ -76,6 +76,11 @@ b_g_d_l
 b_g_u_r
 b_g_d_r
 
+x <- Tamanho
+y <- Provedores
+
+cor(x, y, method='spearman')
+
 # -----------------------------
 # GRAPH 3
 # -----------------------------
@@ -86,7 +91,7 @@ pdf('~/git/paper_break_change/figures/providers_releases_bc.pdf', width=3, heigh
 ggplot(provs_info, aes(x=range, y=sort(percentage))) +
   geom_point() +
   geom_segment(aes(x=range, xend=range, y=0, yend=sort(percentage))) +
-  labs(x='', y='%') +
+  labs(x='Providers', y='%') +
   theme_bw() +
   theme(panel.border = element_blank(),axis.line = element_line(colour = "black"))
 dev.off()
@@ -173,7 +178,7 @@ um == m*n - un  # it must be TRUE
 
 # Se o valor de p for maior do que o nível de significância, você não deve rejeitar a hipótese nula
 # p-value = 0.6488
-wilcoxon = wilcox.test(evolu, final, 'greater', correct=FALSE)
+wilcoxon = wilcox.test(evolu, final, correct=FALSE)
 effect = cliff.delta(evolu, final, return.dm=TRUE)
 
 wilcoxon$p.value
@@ -183,4 +188,4 @@ effect$magnitude
 # TESTE PARAMÉTRICO
 t.test(evolu, final)
 # insignificante
-cohen.d(evolu, final)
+round(cohen.d(evolu, final)$estimate, 3)

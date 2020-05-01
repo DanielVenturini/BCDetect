@@ -27,3 +27,21 @@ p <- sankeyNetwork(Links = links, Nodes = nodes, fontSize=15,
               colourScale = my_color,
               height = 350)
 p
+
+# days to be fixed
+explicit <- c(1, 8, 179, 2, 594)
+implicit <- c(122, 1, 1, 17, 70, -1, 4, 1, 3, 94, 1, 2, 183, 1, 1, 402, -1, 44, 1, 4, -1, -1, 1, 1, 34)
+
+# remove -1
+implicit <- implicit[implicit > 0]
+
+median(explicit)
+median(implicit)
+
+client <- c(1, 44, 94, 1, -1, 70, -1, 183, 17, -1, 1, 4, 1, -1, 1, 34, 3, 122, 1, 2, 594, 1, 179, 2, 1, 1, 4, 402, 1, 8)
+provid <- c(15, 7, 1002, 38, 462, 1, 32, 1002, 160, 4, 20, 117)
+
+client <- client[client > 0]
+
+median(client)
+median(provid)
