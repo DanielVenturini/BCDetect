@@ -11,12 +11,14 @@ from copy import deepcopy
 from os.path import isfile
 
 
-PATH_OLDS  = join('.', 'CSV', 'packagejson','npm_packs_2017-06-01', '{}.json')
+PATH_OLDS  = join('.', 'CSV', 'packagejson', 'npm_packs_2017-06-01', '{}.json')
 PATH_NEW   = join('.', 'CSV', 'packagejson', 'npm_packs_new', '{}.json')
 PATH_DIFF  = join('.', 'CSV', 'packagejson', 'npm_packs_diff', '{}.json')
+PATH_CSV   = join('.', 'CSV', 'packagejson', 'CSV', '{}.csv')
 PATH_PACKAGES = join('.', 'CSV', 'packagejson', 'sample.csv')
 
 PACKAGE_URL = 'http://registry.npmjs.org/{}'
+CSV_HEADER = 'client_name,client_version,client_timestamp,client_previous_timestamp,dependency_name,dependency_type,dependency_resolved_version,dependency_resolved_version_change, {}\n'	# this last one is the repo url
 
 # STATISTICAL
 remain_packages = 0
@@ -40,6 +42,9 @@ def get_package_names(packages=PATH_PACKAGES):
 Save the file in the specific location
 '''
 def save_package(package, filedir):
+	if not package:
+		return
+
 	json.dump(package, open(filedir, 'w'))
 	return package
 
@@ -115,7 +120,6 @@ def create_diff(package_ori, package_new):
 	previous_version = '0.0.0'
 	setted = False
 	package_diff = deepcopy(package_new)
-	# last_time_new = get_latest_time(package_new)
 
 	# remove from the package_new all versions that are in the ori
 	for version in package_new['time']:
@@ -141,12 +145,15 @@ def create_diff(package_ori, package_new):
 
 	remain = len(package_diff['time']) - key_imp
 	if remain > 0:
+		print('{0} {1}'.format(remain, package_ori['_id']))
 		remain_packages += 1
 		remain_releases += remain
 
 		new_date = get_latest_time(package_diff)
 		if last_date < new_date:
 			last_date = new_date
+	else:
+		return None
 
 	return package_diff
 
@@ -173,5 +180,88 @@ def verify_new_releases():
 	print('Remain releases: {}'.format(remain_releases))
 	print('Snapshot time  : {}'.format(last_date))
 
+
+'''
+Create the file writer and save it in PATH_DIFF
+Also, insert the header
+'''
+def create_writer(package_name, package, PATH):
+	writer = open(PATH.format(package_name), 'w')
+	writer.write(CSV_HEADER.format(package['repository']['url']))
+
+	return writer
+
+
+'''
+In each dev type, return the provider name and its version
+'''
+def get_providers(package, version, dep_type):
+	provs = []
+	try:
+		for prov in package['versions'][version][dep_type]:
+			# provider, its version, its change
+			provs.append((prov, package['versions'][version][dep_type][prov], ''))
+	except KeyError:
+		pass
+
+	return provs
+
+
+'''
+Resolve the dep type
+Domain Type Server
+'''
+def DTS(dep_type):
+	if dep_type == 'dependencies':
+		return 'dependency'
+	else:
+		return 'notdependency'
+
+
+'''
+Create the rows of the file. For each dependency type, get each dependency
+and get its information, such as resolved version
+'''
+def get_providers_by_type(package_name, package, version, writer, timestamp, prev_timestamp):
+	for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies', 'globalDependencies']:
+		for provinfo in get_providers(package, version, dep_type):
+
+			writer.write('{0},{1},{2},{3},{4},{5},{6},{7},\n'.format(
+				package_name,
+				version,
+				timestamp,
+				prev_timestamp,
+				provinfo[0],
+				DTS(dep_type),
+				provinfo[1],
+				provinfo[2]
+			))
+
+
+'''
+Generate the new csv files to each package resolving their ranges
+c_name,c_version,c_timestamp,c_previous_timestamp,d_name,d_type,d_resolved_version,d_resolved_version_change,https://github.com/user/package
+'''
+def generate_new_csv():
+	packages = get_package_names()
+
+	for package_name in packages:
+		if not isfile(PATH_DIFF.format(package_name)):
+			continue
+
+		package = get_package(package_name, PATH_DIFF)
+		writer = create_writer(package_name, package, PATH_CSV)
+
+		prev_timestamp = ''
+		for version in package['versions']:
+			timestamp = package['time'][version]
+			get_providers_by_type(package_name, package, version, writer, timestamp, prev_timestamp)
+
+			prev_timestamp = timestamp
+
+		writer.close()
+
+
 if __name__ == '__main__':
-	#verify_new_releases()
+	# verify_new_releases()
+	generate_new_csv()
