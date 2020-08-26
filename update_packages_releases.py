@@ -6,16 +6,19 @@ import csv
 import json
 import requests
 import datetime
-from os.path import join
+from os import mkdir
+from lamp import worker
 from copy import deepcopy
-from os.path import isfile
+from os.path import join, isfile, isdir
 
 
 PATH_OLDS  = join('.', 'CSV', 'packagejson', 'npm_packs_2017-06-01', '{}.json')
 PATH_NEW   = join('.', 'CSV', 'packagejson', 'npm_packs_new', '{}.json')
 PATH_DIFF  = join('.', 'CSV', 'packagejson', 'npm_packs_diff', '{}.json')
 PATH_CSV   = join('.', 'CSV', 'packagejson', 'CSV', '{}.csv')
+PATH_CSV_OLD  = join('.', 'CSV', '{}.csv')
 PATH_PACKAGES = join('.', 'CSV', 'packagejson', 'sample.csv')
+PATH_NEXT     = join('.', 'CSV', 'packagejson', 'sample_next.csv')
 
 PACKAGE_URL = 'http://registry.npmjs.org/{}'
 CSV_HEADER = 'client_name,client_version,client_timestamp,client_previous_timestamp,dependency_name,dependency_type,dependency_resolved_version,dependency_resolved_version_change, {}\n'	# this last one is the repo url
@@ -73,10 +76,10 @@ If not, the package will be downloaded from PACKAGE_URL and saved in PATH_NEW
 def get_package(package_name, PATH):
 	FILE_CACHE = PATH.format(package_name)	# just a conveninet name
 	if isfile(FILE_CACHE):
-		# print('CACHE {}'.format(package_name))
+		print('    CACHE {}'.format(package_name))
 		return json.load(open(FILE_CACHE))
 	else:
-		# print('NPM   {}'.format(package_name))
+		print('    NPM   {}'.format(package_name))
 		return get_package_npm(package_name, FILE_CACHE)
 
 
@@ -193,14 +196,48 @@ def create_writer(package_name, package, PATH):
 
 
 '''
+Use the vigilant-lamp to solve the providers version
+'''
+def resolve_version(prov_name, semverstr, timestamp):
+	prov_path = prov_name
+	if prov_name.startswith('@'):
+	 	prov_path = prov_name.split('/')[0]
+	 	prov_path = PATH_NEW.format(prov_path).replace('.json', '')
+	 	if not isdir(prov_path):
+	 		mkdir(prov_path)
+
+	return worker.worker(prov_name, semverstr, timestamp, get_package(prov_name, PATH_NEW))
+
+
+'''
+Return the type of change from the previous client release:
+steady
+upgrade
+
+'''
+def get_version_change(client_version, prov_name, new_version, CHANGELOG):
+
+	change = ''
+	try:
+		prev_version = CHANGELOG[CHANGELOG[client_version]['previous_version']][prov_name]
+		change = 'steady' if prev_version == new_version else 'upgraded'	# I'll assume it
+	except KeyError:
+		pass
+
+	CHANGELOG[client_version][prov_name] = new_version
+	return change
+
+
+'''
 In each dev type, return the provider name and its version
 '''
-def get_providers(package, version, dep_type):
+def get_providers(package, version, dep_type, timestamp, CHANGELOG):
 	provs = []
 	try:
 		for prov in package['versions'][version][dep_type]:
 			# provider, its version, its change
-			provs.append((prov, package['versions'][version][dep_type][prov], ''))
+			resolved_version = resolve_version(prov, package['versions'][version][dep_type][prov], timestamp)
+			provs.append((prov, resolved_version, get_version_change(version, prov, resolved_version, CHANGELOG)))
 	except KeyError:
 		pass
 
@@ -214,17 +251,53 @@ Domain Type Server
 def DTS(dep_type):
 	if dep_type == 'dependencies':
 		return 'dependency'
+	elif dep_type == 'devDependencies':
+		return 'dev_dependency'
+	elif dep_type == 'peerDependencies':
+		return 'peer_dependency'
+	elif dep_type == 'optionalDependencies':
+		return 'optional_dependency'
 	else:
-		return 'notdependency'
+		return 'global_dependency'
+
+
+'''
+Insert the value as a map of secondkey, that is a map of firstkey in the obj
+'''
+def insert_obj(obj, firstkey, secondkey, value):
+	try:
+		obj[firstkey][secondkey] = value
+	except KeyError:
+		obj[firstkey] = {}
+		insert_obj(obj, firstkey, secondkey, value)
+
+
+'''
+Create the changelog, it means, open the old executed csv and get all version
+'''
+def create_changelog(package_name):
+	CHANGELOG = {}
+	reader = open(PATH_CSV_OLD.format(package_name))
+	reader.readline()	# skip header
+	prev_version = ''
+
+	for line in reader.readlines():
+		line = line.split(',')
+		# client_version, provider_name, provider_resolved_version
+		insert_obj(CHANGELOG, line[1], line[4], line[6])
+		prev_version = line[1]
+
+	return CHANGELOG, prev_version
 
 
 '''
 Create the rows of the file. For each dependency type, get each dependency
 and get its information, such as resolved version
 '''
-def get_providers_by_type(package_name, package, version, writer, timestamp, prev_timestamp):
+def get_providers_by_type(package_name, package, version, prev_version, writer, timestamp, prev_timestamp, CHANGELOG):
+
 	for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies', 'globalDependencies']:
-		for provinfo in get_providers(package, version, dep_type):
+		for provinfo in get_providers(package, version, dep_type, timestamp, CHANGELOG):
 
 			writer.write('{0},{1},{2},{3},{4},{5},{6},{7},\n'.format(
 				package_name,
@@ -243,9 +316,10 @@ Generate the new csv files to each package resolving their ranges
 c_name,c_version,c_timestamp,c_previous_timestamp,d_name,d_type,d_resolved_version,d_resolved_version_change,https://github.com/user/package
 '''
 def generate_new_csv():
-	packages = get_package_names()
+	packages = get_package_names(PATH_NEXT)
 
 	for package_name in packages:
+		print(package_name)
 		if not isfile(PATH_DIFF.format(package_name)):
 			continue
 
@@ -253,11 +327,16 @@ def generate_new_csv():
 		writer = create_writer(package_name, package, PATH_CSV)
 
 		prev_timestamp = ''
+
+		CHANGELOG, prev_version = create_changelog(package_name)
+
 		for version in package['versions']:
+			insert_obj(CHANGELOG, version, 'previous_version', prev_version)	# insert the previous version from csv at packagejson
 			timestamp = package['time'][version]
-			get_providers_by_type(package_name, package, version, writer, timestamp, prev_timestamp)
+			get_providers_by_type(package_name, package, version, prev_version, writer, timestamp, prev_timestamp, CHANGELOG)
 
 			prev_timestamp = timestamp
+			prev_version = version
 
 		writer.close()
 
@@ -265,3 +344,4 @@ def generate_new_csv():
 if __name__ == '__main__':
 	# verify_new_releases()
 	generate_new_csv()
+	# remove_all_steady()
