@@ -161,6 +161,7 @@ class Execute(threading.Thread):
             try:
                 reader = verifyFile(fileName)
                 Worker(reader, version, clone, delete, checkout, checkout_p, aDate).start()
+                subprocess.getstatusoutput('echo {} >> executed'.format(sys.argv[pos]))
             except Exception as ex:
                 print("Exception: " + str(ex))
                 continue

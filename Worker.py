@@ -44,6 +44,7 @@ class Worker():
         writer = open('workspace/' + self.client_name+'_results.csv', 'w')
         writer.write("version,dependency_changed,script_test,install,test,node_on_date,node_sucess\n")
 
+        self.tags = op.getTags(self.pathName)
         # for each version: ['3.5.0', '3.1.0', '1.0.0', '2.1.0' ...]
         keys = list(self.fullCSV.keys())
         keys.sort()                             # sort the keys
@@ -72,7 +73,7 @@ class Worker():
             # checkout before get package
             op.cleanAndReset(self.client_name, self.currentDirectory)
             # change the repository to specify date
-            op.checkout(self.pathName, self.release)
+            op.checkout(self.pathName, self.release, self.tags)
 
             if self.checkout:
                 op.getHEAD(self.pathName, self.release)
@@ -174,7 +175,7 @@ class Worker():
 
             # change the repository to specify date
             operation = 'CHECKOUT'
-            op.checkout(self.pathName, self.release)
+            op.checkout(self.pathName, self.release, self.tags)
 
             #input()
 

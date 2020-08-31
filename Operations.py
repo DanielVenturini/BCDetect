@@ -15,9 +15,8 @@ table = {
     '6': '┘',
 }
 
-# change the git tree to specify data
-def checkout(pathName, release):
-    print('    checkout: ', end='', flush=True)
+
+def checkout_timestamp(pathName, release):
     client_timestamp = release.client_timestamp
     client_previous_timestamp = release.client_previous_timestamp
 
@@ -27,6 +26,34 @@ def checkout(pathName, release):
     else:
         if sp.getstatusoutput('cd {0}/ && git checkout `git rev-list -1 --before="{1}" --after="{2}" master`'.format(pathName, client_timestamp, client_previous_timestamp))[0] != 0:
             raise Exception('Wrong checkout')
+
+    return getHEAD(pathName, release)
+
+
+def getTag(version, tags):
+    for tag in tags:
+        if re.search('^v?' + version + '$', tag):
+            return tag
+
+    raise Exception('Tag {} not found'.format(version))
+
+
+def checkout_tags(pathName, release, tags):
+    tag = getTag(release.version, tags)
+
+    if sp.getstatusoutput('cd {0}/ && git checkout {1}'.format(pathName, tag))[0] != 0:
+        raise Exception('Wrong checkout')
+
+
+# change the git tree to specify data
+def checkout(pathName, release, tags):
+    print('    checkout: '.format(release), end='', flush=True)
+
+    try:
+        checkout_tags(pathName, release, tags)
+    except:
+        # if there is not tag in the repo
+        checkout_timestamp(pathName, release)
 
     print('OK')
 
@@ -68,16 +95,30 @@ def npmTest(pathName, version):
     printTableInfo('TEST OK')
 
 
+def parse_url(urlRepo):
+    try:
+        fromgit = urlRepo.split('//')[1]
+        info = fromgit.split('/')
+        if info[2].endswith('.git'):
+            info[2] = info[2][:-4]
+
+        return 'https://github.com/{}/{}'.format(info[1], info[2])
+    except:
+        return urlRepo
+
 # download repository
 def clone(urlRepo, client_name):
+    urlRepo = parse_url(urlRepo)
     sp.getstatusoutput('rm -rf workspace/{0}'.format(client_name))  # delete this path - if contain - to dont conflit with git
     sp.getstatusoutput('mkdir workspace/{0}'.format(client_name))   # if this path dont exists, create
 
     print('Clone {0} : '.format(urlRepo), end='', flush=True)
     # download source code
-    if(sp.getstatusoutput('git clone --recurse-submodules ' + urlRepo + ' workspace/{0}'.format(client_name))[0] != 0):
-        print('ERR')
-        raise Exception
+    clone_exec = sp.getstatusoutput('git clone --recurse-submodules ' + urlRepo + ' workspace/{0}'.format(client_name))
+    if(clone_exec[0] != 0):
+        # print('ERR')
+        print(clone_exec[1])
+        raise Exception('CLONE ERROR DO VENTU')
 
     print('OK')
 
@@ -160,3 +201,8 @@ def formatDate(release):
 
 def getHEAD(pathName, release):
     printTableInfo(sp.getstatusoutput('cat {0}/.git/HEAD'.format(pathName))[1] + ' - ' + formatDate(release) + ' - ' + release.client_timestamp)
+
+
+def getTags(pathName):
+    tags = sp.getstatusoutput('cd {0}/ && git tag'.format(pathName))[1]
+    return tags.split('\n')

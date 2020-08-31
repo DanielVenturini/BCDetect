@@ -46,7 +46,7 @@ nvm_use() {
 # execute npm install in ./path/to/install in the node version x.y.z
 npm_install() {
     nvm_use $2
-    npm install --prefix $1
+    npm install --prefix $1 --silent
 }
 
 # execute npm test in ./path/to/test in the node version x.y.z
