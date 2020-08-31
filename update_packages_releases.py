@@ -275,10 +275,71 @@ def insert_obj(obj, firstkey, secondkey, value):
 
 
 '''
+Sort the list based in its date
+'''
+def sortList(time, arr):
+	for i in range(1, len(arr)):
+		version = arr[i]
+		# Move elements of arr[0..i-1], that are
+		# greater than version, to one position ahead
+		# of their current position
+		j = i-1
+		while j >= 0 and get_datetime(time[version]) < get_datetime(time[arr[j]]):
+			arr[j+1] = arr[j]
+			j -= 1
+		arr[j+1] = version
+	# sure, i did it
+	return arr
+
+'''
+Return all versions in the package.json
+'''
+def get_all_versions(package_name):
+	try:
+		reader = json.load(open(PATH_NEW.format(package_name)))
+		time = reader['time']
+		del(time['modified'])
+		del(time['created'])
+		return sortList(time, list(time))
+	except:
+		return []
+
+
+'''
+Return the previous biggest version that is smaller than version
+'''
+def get_previous_version(version, pos, versions):
+	pversion = versions[0]
+	sv = semantic_version
+
+	for i in range(1, pos):
+		try:
+			if sv.Version(version) > sv.Version(versions[i]) > sv.Version(pversion):
+				pversion = versions[i]
+		except ValueError:
+			continue
+
+	return pversion
+
+
+'''
+Return a changelog with all versions and their previous version
+'''
+def get_base_changelog(package_name):
+	versions = get_all_versions(package_name)
+	CHANGELOG = {}
+
+	for i, version in enumerate(versions):
+		insert_obj(CHANGELOG, version, 'previous_version', get_previous_version(version, i, versions))
+
+	return CHANGELOG
+
+
+'''
 Create the changelog, it means, open the old executed csv and get all version
 '''
 def create_changelog(package_name):
-	CHANGELOG = {}
+	CHANGELOG = get_base_changelog(package_name)
 	reader = open(PATH_CSV_OLD.format(package_name))
 	reader.readline()	# skip header
 	prev_version = ''
@@ -287,16 +348,15 @@ def create_changelog(package_name):
 		line = line.split(',')
 		# client_version, provider_name, provider_resolved_version
 		insert_obj(CHANGELOG, line[1], line[4], line[6])
-		prev_version = line[1]
 
-	return CHANGELOG, prev_version
+	return CHANGELOG
 
 
 '''
 Create the rows of the file. For each dependency type, get each dependency
 and get its information, such as resolved version
 '''
-def get_providers_by_type(package_name, package, version, prev_version, writer, timestamp, prev_timestamp, CHANGELOG, NPM_CACHE):
+def get_providers_by_type(package_name, package, version, writer, timestamp, prev_timestamp, CHANGELOG, NPM_CACHE):
 
 	for dep_type in ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies', 'globalDependencies']:
 		for provinfo in get_providers(package, version, dep_type, timestamp, CHANGELOG, NPM_CACHE):
@@ -331,15 +391,13 @@ def generate_new_csv():
 
 		prev_timestamp = ''
 
-		CHANGELOG, prev_version = create_changelog(package_name)
+		CHANGELOG = create_changelog(package_name)
 
 		for version in package['versions']:
-			insert_obj(CHANGELOG, version, 'previous_version', prev_version)	# insert the previous version from csv at packagejson
 			timestamp = package['time'][version]
-			get_providers_by_type(package_name, package, version, prev_version, writer, timestamp, prev_timestamp, CHANGELOG, NPM_CACHE)
+			get_providers_by_type(package_name, package, version, writer, timestamp, prev_timestamp, CHANGELOG, NPM_CACHE)
 
 			prev_timestamp = timestamp
-			prev_version = version
 
 		writer.close()
 
@@ -452,6 +510,7 @@ def verify_results():
 				if line[4] == 'OK':
 					releases_success += 1
 				else:
+					print(package_name)
 					releases_error += 1
 					all_releases_success = False
 
@@ -468,10 +527,11 @@ def verify_results():
 
 if __name__ == '__main__':
 	# verify_new_releases()
-	# generate_new_csv()
-	# verify_executable()
+	generate_new_csv()
+	# verify_executable()	# verify if there is any range string
 	# verify_order()
-	verify_results()
+	# verify_results()
+
 	# to verify the pre-releases
 	# for package_name in get_package_names(PATH_NEXT):
 	# 	packages = json.load(open('./CSV/packagejson/npm_packs_new/{}.json'.format(package_name)))
